@@ -1,24 +1,69 @@
-/* General styles */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #fff;
   }
   
-  .workout-menu {
+  .home {
+    text-align: center;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
   }
   
-  /* Header con botón de retroceso y título del grupo muscular */
-  .header {
-    width: 100%;
+  .logo-box {
+    width: 150px;
+    height: 150px;
+    border: 2px solid black;
+    margin: 0 auto 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .group-muscle-btn {
+    padding: 10px;
+    border-radius: 20px;
+    border: 2px solid black;
+    background: none;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .buttons {
+    margin-top: 40px;
+  }
+  
+  .start-btn, .record-btn {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .start-btn {
+    background-color: black;
+    color: white;
+  }
+  
+  .record-btn {
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+  }
+  
+  footer {
+    margin-top: 20px;
+    font-size: 12px;
+  }
+  
+  /* Estilos para WorkoutMenu y WeeklyRecord */
+  .workout-menu, .weekly-record {
+    padding: 20px;
+    text-align: center;
   }
   
   .back-btn {
@@ -28,94 +73,42 @@ body {
     cursor: pointer;
   }
   
-  .group-muscle {
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .exercise-list {
+  .exercise-btn, .calendar-day {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 50px;
+    border: 2px solid black;
     width: 100%;
-  }
-  
-  .exercise-btn {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    margin-bottom: 15px;
     font-size: 16px;
     font-weight: bold;
-    color: black;
-    background-color: white;
-    border: 2px solid black;
-    border-radius: 50px;
-    transition: background-color 0.3s ease;
   }
   
-  .exercise-btn.completed {
-    background-color: black;
-    color: white;
-  }
-  
-  .exercise-btn:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .checkmark {
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  .extra-section {
-    width: 100%;
+  .calendar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
     margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
   }
   
-  /* Tiempo total */
-  .total-time {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 32px;
-    font-weight: bold;
+  .calendar-day {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
   }
   
-  .complete-btn {
-    width: 100%;
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    color: black;
-    background-color: white;
-    border: 2px solid black;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  .max-weights {
+    margin-top: 20px;
   }
   
-  .complete-btn:hover {
-    background-color: #f0f0f0;
+  .max-weights ul {
+    list-style: none;
+    padding: 0;
   }
-  
-  footer {
-    margin-top: 30px;
-    font-size: 12px;
-    text-align: center;
-  }
-  
-  /* Adjustments for button interaction */
-  button {
-    cursor: pointer;
-  }
-  
-  button:disabled {
-    background-color: grey;
-    cursor: not-allowed;
-  }
-  
+
   /* Difuminar el fondo cuando el modal esté abierto */
 .modal-overlay {
     position: fixed;
@@ -224,4 +217,44 @@ body {
     border: none;
     cursor: pointer;
   }
+  
+  .data-overview {
+    padding: 20px;
+  }
+  
+  .data-overview h1 {
+    text-align: center;
+  }
+  
+  .data-overview section {
+    margin-bottom: 40px;
+  }
+  
+  .data-overview ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .data-overview li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .data-overview h2 {
+    margin-bottom: 20px;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
+  }
+  
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
   

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import playIcon from '../assets/btn/play.svg'; // Importa el SVG del botón play
+import pauseIcon from '../assets/btn/pause.svg'; // Importa el SVG del botón pausa
+import resetIcon from '../assets/btn/reset.svg'; // Importa el SVG del botón reset
 
 const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
   const [weights, setWeights] = useState(Array(4).fill(''));  // Cada ejercicio puede tener hasta 4 series
@@ -67,17 +70,17 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>{exercise.name}</h3>
+          <h3 className="exercise-title">{exercise.name}</h3>
           <button className="close-btn" onClick={onClose}>✖</button>
         </div>
         <div className="modal-body">
-          <div className="exercise-info">
-            <div className="info-series">
-              <button className="series-btn">4 series</button>
-              <button className="reps-btn">12 reps</button>
-            </div>
+          <div className="exercise-image-container">
             <div className="exercise-image">
               <img src={getExerciseImage(exercise.name)} alt={exercise.name} />
+            </div>
+            <div className="pill-container">
+              <span className="pill">4 series</span>
+              <span className="pill">12 reps</span>
             </div>
           </div>
           {!isExtra && (
@@ -95,13 +98,21 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
           )}
         </div>
         <div className="modal-footer">
-          <div className="timer">
-            <p>{formatTime(time)}</p>
-            <button onClick={startTimer}>Empezar</button>
-            <button onClick={pauseTimer}>⏸</button>
-            <button onClick={resetTimer}>🔄</button>
+          <div className="time-and-complete">
+            <p className="timer-display">{formatTime(time)}</p>
+            <button className="complete-button" onClick={handleComplete}>Terminar</button>
           </div>
-          <button className="complete-btn" onClick={handleComplete}>Terminar</button>
+          <div className="control-buttons">
+            <button onClick={resetTimer}>
+              <img src={resetIcon} alt="Reset Timer" />
+            </button>
+            <button onClick={pauseTimer}>
+              <img src={pauseIcon} alt="Pause Timer" />
+            </button>
+            <button onClick={startTimer}>
+              <img src={playIcon} alt="Start Timer" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

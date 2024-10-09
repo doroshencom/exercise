@@ -1,260 +1,293 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-  
-  .home {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .logo-box {
-    width: 150px;
-    height: 150px;
-    border: 2px solid black;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .group-muscle-btn {
-    padding: 10px;
-    border-radius: 20px;
-    border: 2px solid black;
-    background: none;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .buttons {
-    margin-top: 40px;
-  }
-  
-  .start-btn, .record-btn {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 50px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .start-btn {
-    background-color: black;
-    color: white;
-  }
-  
-  .record-btn {
-    background-color: white;
-    color: black;
-    border: 2px solid black;
-  }
-  
-  footer {
-    margin-top: 20px;
-    font-size: 12px;
-  }
-  
-  /* Estilos para WorkoutMenu y WeeklyRecord */
-  .workout-menu, .weekly-record {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .back-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
-  .exercise-btn, .calendar-day {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 50px;
-    border: 2px solid black;
-    width: 100%;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .calendar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    margin-top: 20px;
-  }
-  
-  .calendar-day {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 5px;
-  }
-  
-  .max-weights {
-    margin-top: 20px;
-  }
-  
-  .max-weights ul {
-    list-style: none;
-    padding: 0;
-  }
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
 
-  /* Difuminar el fondo cuando el modal esté abierto */
+.home {
+  text-align: center;
+  padding: 20px;
+}
+
+.logo-box {
+  width: 150px;
+  height: 150px;
+  border: 2px solid black;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.group-muscle-btn {
+  padding: 10px;
+  border-radius: 20px;
+  border: 2px solid black;
+  background: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.buttons {
+  margin-top: 40px;
+}
+
+.start-btn, .record-btn {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+}
+
+.start-btn {
+  background-color: black;
+  color: white;
+}
+
+.record-btn {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+}
+
+footer {
+  margin-top: 20px;
+  font-size: 12px;
+}
+
+/* Estilos para WorkoutMenu y WeeklyRecord */
+.workout-menu, .weekly-record {
+  padding: 20px;
+  text-align: center;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.exercise-btn, .calendar-day {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 50px;
+  border: 2px solid black;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.calendar-day {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+}
+
+.max-weights {
+  margin-top: 20px;
+}
+
+.max-weights ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* Difuminar el fondo cuando el modal esté abierto */
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
-    backdrop-filter: blur(5px); /* Difuminar el fondo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
-  }
-  
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 400px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .modal-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .modal-header h3 {
-    margin: 0;
-    font-size: 18px;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
-  .exercise-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .info-series {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .series-btn, .reps-btn {
-    background-color: #f0f0f0;
-    border: none;
-    padding: 10px;
-    border-radius: 20px;
-  }
-  
-  .exercise-image img {
-    width: fit-content;
-    height: 250px;
-    margin-bottom: 10px;
-  }
-  
-  .weights-input input {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 20px;
-    border: 1px solid #ccc;
-  }
-  
-  .modal-footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .timer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .timer p {
-    font-size: 24px;
-    margin: 0 10px;
-  }
-  
-  .complete-btn {
-    background-color: black;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .data-overview {
-    padding: 20px;
-  }
-  
-  .data-overview h1 {
-    text-align: center;
-  }
-  
-  .data-overview section {
-    margin-bottom: 40px;
-  }
-  
-  .data-overview ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .data-overview li {
-    padding: 10px 0;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .data-overview h2 {
-    margin-bottom: 20px;
-  }
-  
-  footer {
-    text-align: center;
-    margin-top: 40px;
-    font-size: 12px;
-  }
-  
-  .back-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+  backdrop-filter: blur(5px); /* Difuminar el fondo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.exercise-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.info-series {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.series-btn, .reps-btn {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.exercise-image-container {
+  position: relative;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.exercise-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.exercise-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.pill-container {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1;
+}
+
+.pill {
+  background-color: white;
+  border: 1px solid rgb(192, 192, 192);
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.weights-input input {
+  width: 95%;
+  padding: 12px;
+  margin: 5px auto;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+.modal-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.timer-display {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-top: 0px;
+}
+
+.time-and-complete {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.complete-button {
+  background-color: black;
+  color: white;
+  padding: 10px 30px; /* Ajuste del padding */
+  height: 3rem;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.data-overview {
+  padding: 20px;
+}
+
+.data-overview h1 {
+  text-align: center;
+}
+
+.data-overview section {
+  margin-bottom: 40px;
+}
+
+.data-overview ul {
+  list-style: none;
+  padding: 0;
+}
+
+.data-overview li {
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.data-overview h2 {
+  margin-bottom: 20px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 12px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WorkoutModal from './WorkoutModal';
-import { collection, addDoc } from "firebase/firestore";
-import { db } from '../firebaseConfig';  // Importamos Firestore
+import { collection, doc, getDoc, setDoc, addDoc } from "firebase/firestore";
+import { db } from '../firebaseConfig';
 
 const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const workoutsByDay = {
@@ -37,18 +37,90 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [completedExercises, setCompletedExercises] = useState([]);
-  const [totalTime, setTotalTime] = useState(0);
+  const [totalTime, setTotalTime] = useState(0); // Tiempo total acumulado de todos los ejercicios
+  const [trainedDays, setTrainedDays] = useState([]);
+
+  const userId = "user_123"; // Reemplaza con el id real del usuario
+
+  useEffect(() => {
+    // Cargamos los días entrenados al cargar el componente
+    const loadTrainedDays = async () => {
+      const docRef = doc(db, "diasEntrenados", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setTrainedDays(docSnap.data().days || []);
+      } else {
+        // Si no existen días entrenados, inicializamos el documento
+        await setDoc(docRef, { days: [] });
+        setTrainedDays([]);
+        console.log("Documento 'diasEntrenados' creado.");
+      }
+    };
+    loadTrainedDays();
+  }, [userId]);
 
   const exercises = workoutsByDay[workout] || [];
+
+  // Actualizamos los pesos máximos en Firebase
+  const updateMaxWeight = async (exercise) => {
+    const maxWeightDocRef = doc(db, "pesosMaximos", userId);
+    const docSnap = await getDoc(maxWeightDocRef);
+
+    let maxWeights = {};
+    if (docSnap.exists()) {
+      maxWeights = docSnap.data();
+    } else {
+      // Si no existe el documento, lo creamos
+      await setDoc(maxWeightDocRef, {});
+      console.log("Documento 'pesosMaximos' creado.");
+    }
+
+    const currentMaxWeight = maxWeights[exercise.name] || 0;
+    if (exercise.peso > currentMaxWeight) {
+      maxWeights[exercise.name] = exercise.peso;
+      try {
+        await setDoc(maxWeightDocRef, maxWeights, { merge: true });
+        console.log("Peso máximo actualizado:", exercise.peso);
+      } catch (error) {
+        console.error("Error al actualizar el peso máximo:", error);
+      }
+    }
+  };
 
   const handleExerciseClick = (exercise) => {
     setSelectedExercise(exercise);
     setModalOpen(true);
   };
 
-  const handleCompleteExercise = (exercise) => {
-    setCompletedExercises([...completedExercises, exercise]); // Agregamos los datos completos del ejercicio
+  const handleCompleteExercise = async (exercise) => {
+    await updateMaxWeight(exercise);
+    setTotalTime((prevTime) => prevTime + exercise.timeSpent);
+    setCompletedExercises([...completedExercises, exercise]);
     setModalOpen(false);
+  };
+
+  const updateTrainingDays = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const docRef = doc(db, "diasEntrenados", userId);
+
+    const docSnap = await getDoc(docRef);
+    let newTrainedDays = [];
+
+    if (docSnap.exists()) {
+      const currentDays = docSnap.data().days || [];
+      if (!currentDays.includes(today)) {
+        newTrainedDays = [...currentDays, today];
+      } else {
+        newTrainedDays = currentDays;
+      }
+    } else {
+      newTrainedDays = [today];
+      await setDoc(docRef, { days: newTrainedDays }, { merge: true });
+    }
+
+    await setDoc(docRef, { days: newTrainedDays }, { merge: true });
+    setTrainedDays(newTrainedDays);
+    console.log("Días entrenados actualizados:", newTrainedDays);
   };
 
   const handleCompleteWorkout = async () => {
@@ -56,16 +128,23 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     console.log("Ejercicios completados:", completedExercises);
 
     try {
+      // Guardamos los ejercicios completados
       await addDoc(collection(db, "entrenamientos"), {
         fecha: new Date().toISOString(),
         grupoMuscular: workout,
         ejercicios: completedExercises.map(e => ({
           nombre: e.name,
-          peso: e.peso || null,  // Guardamos el peso máximo
-          series: e.series || 0,  // Guardamos el número de series
-          repeticiones: e.repeticiones || 0  // Guardamos el número de repeticiones
-        }))
+          peso: e.peso || null,
+          series: e.series || 0,
+          repeticiones: e.repeticiones || 0,
+          timeSpent: e.timeSpent || 0
+        })),
+        tiempoTotal: totalTime
       });
+
+      // Actualizamos los días entrenados
+      await updateTrainingDays();
+
       console.log("Entrenamiento guardado con éxito");
       onCompleteWorkout();
     } catch (error) {
@@ -75,6 +154,13 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60000);
+    const seconds = Math.floor((time % 60000) / 1000);
+    const milliseconds = (time % 1000) / 10;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -97,7 +183,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
       </div>
       <div className="total-time">
         <p>Tiempo total</p>
-        <p>{new Date(totalTime * 1000).toISOString().substr(11, 8)}</p>
+        <p>{formatTime(totalTime)}</p>
       </div>
       <button className="complete-btn" onClick={handleCompleteWorkout}>
         COMPLETAR

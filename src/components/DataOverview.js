@@ -1,46 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { db } from '../firebaseConfig';  // Asegúrate de que esto apunta a la configuración de Firebase
+import { db } from '../firebaseConfig';
 
 const DataOverview = ({ onGoBack }) => {
   const [trainings, setTrainings] = useState([]);
   const [maxWeights, setMaxWeights] = useState({});
   const [trainedDays, setTrainedDays] = useState([]);
 
-  const userId = "user_123"; // Identificación del usuario (ajusta esto según tu implementación)
+  const userId = "user_123"; // Identificación del usuario (ajusta según tu implementación)
 
   useEffect(() => {
     // Función para obtener los entrenamientos desde Firebase
     const fetchTrainings = async () => {
-      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
-      const trainingData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setTrainings(trainingData);
+      try {
+        const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+        const trainingData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setTrainings(trainingData);
+      } catch (error) {
+        console.error("Error al obtener entrenamientos:", error);
+      }
     };
 
     // Función para obtener los pesos máximos desde Firebase
     const fetchMaxWeights = async () => {
-      const docRef = doc(db, "pesosMaximos", userId);
-      const docSnap = await getDoc(docRef);
+      try {
+        const docRef = doc(db, "pesosMaximos", userId);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        setMaxWeights(docSnap.data().maxWeights || {});
-      } else {
-        console.log("No se encontraron pesos máximos");
+        if (docSnap.exists()) {
+          setMaxWeights(docSnap.data());
+        } else {
+          console.log("No se encontraron pesos máximos.");
+        }
+      } catch (error) {
+        console.error("Error al obtener los pesos máximos:", error);
       }
     };
 
     // Función para obtener los días entrenados desde Firebase
     const fetchTrainedDays = async () => {
-      const docRef = doc(db, "diasEntrenados", userId);
-      const docSnap = await getDoc(docRef);
+      try {
+        const docRef = doc(db, "diasEntrenados", userId);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        setTrainedDays(docSnap.data().days || []);
-      } else {
-        console.log("No se encontraron días entrenados");
+        if (docSnap.exists()) {
+          setTrainedDays(docSnap.data().days || []);
+        } else {
+          console.log("No se encontraron días entrenados.");
+        }
+      } catch (error) {
+        console.error("Error al obtener los días entrenados:", error);
       }
     };
 
@@ -48,6 +60,18 @@ const DataOverview = ({ onGoBack }) => {
     fetchMaxWeights();
     fetchTrainedDays();
   }, []);
+
+  // Función para formatear los días entrenados en el formato "Día de la semana, DD/MM/AAAA"
+  const formatDateWithDay = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
+    let formattedDate = date.toLocaleDateString('es-ES', options).replace(',', ''); // Formateamos sin la coma
+    
+    // Capitalizamos la primera letra del día de la semana
+    formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+    
+    return formattedDate;
+  };
 
   return (
     <div className="data-overview">
@@ -57,7 +81,7 @@ const DataOverview = ({ onGoBack }) => {
       </div>
 
       <section>
-        <h2>Entrenamientos</h2>
+        <h2>Seguimiento</h2>
         {trainings.length > 0 ? (
           <ul>
             {trainings.map((training) => (
@@ -97,13 +121,16 @@ const DataOverview = ({ onGoBack }) => {
       </section>
 
       <section>
-        <h2>Días Entrenados</h2>
+        <h2>Entrenamientos</h2>
         {trainedDays.length > 0 ? (
-          <ul>
-            {trainedDays.map((day, index) => (
-              <li key={index}>{day}</li>
-            ))}
-          </ul>
+          <>
+            <p><strong>Días entrenados:</strong> {trainedDays.length} días</p>
+            <ul>
+              {trainedDays.map((day, index) => (
+                <li key={index}>{formatDateWithDay(day)}</li>
+              ))}
+            </ul>
+          </>
         ) : (
           <p>No hay días entrenados registrados.</p>
         )}

@@ -100,16 +100,16 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
         <div className="modal-footer">
           <div className="time-and-complete">
             <p className="timer-display">{formatTime(time)}</p>
-            <button className="complete-button" onClick={handleComplete}>Terminar</button>
+            <button className="complete-button test-complete" onClick={handleComplete}>Terminar</button>
           </div>
-          <div className="control-buttons">
-            <button onClick={resetTimer}>
+          <div className="control-buttons test-buttons">
+            <button className="test-reset" onClick={resetTimer}>
               <img src={resetIcon} alt="Reset Timer" />
             </button>
-            <button onClick={pauseTimer}>
+            <button className="test-pause" onClick={pauseTimer}>
               <img src={pauseIcon} alt="Pause Timer" />
             </button>
-            <button onClick={startTimer}>
+            <button className="test-play" onClick={startTimer}>
               <img src={playIcon} alt="Start Timer" />
             </button>
           </div>

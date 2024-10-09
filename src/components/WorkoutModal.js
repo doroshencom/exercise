@@ -1,25 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
-  const [weights, setWeights] = useState(Array(4).fill(''));
-  const [time, setTime] = useState(0);
+  const [weights, setWeights] = useState(Array(4).fill(''));  // Cada ejercicio puede tener hasta 4 series
+  const [time, setTime] = useState(0);  // Tiempo total en milisegundos
   const [timerActive, setTimerActive] = useState(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
-    let interval;
     if (timerActive) {
-      interval = setInterval(() => {
-        setTime(prevTime => prevTime + 1);
-      }, 1000);
+      timerRef.current = setInterval(() => {
+        setTime((prevTime) => prevTime + 10);
+      }, 10);
+    } else {
+      clearInterval(timerRef.current);
     }
-    return () => clearInterval(interval);
+    return () => clearInterval(timerRef.current);
   }, [timerActive]);
-
-  const handleWeightChange = (index, value) => {
-    const newWeights = [...weights];
-    newWeights[index] = value;
-    setWeights(newWeights);
-  };
 
   const startTimer = () => setTimerActive(true);
   const pauseTimer = () => setTimerActive(false);
@@ -28,17 +24,43 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
     setTime(0);
   };
 
+  const handleWeightChange = (index, value) => {
+    const newWeights = [...weights];
+    newWeights[index] = value;
+    setWeights(newWeights);
+  };
+
   const handleComplete = () => {
-    onComplete(exercise, time); // Sumamos el tiempo del ejercicio
+    // Tomamos el peso máximo introducido en todas las series y lo calculamos
+    const maxWeight = Math.max(...weights.map(w => parseFloat(w) || 0));
+    
+    // Incluimos las series y repeticiones dependiendo del ejercicio
+    const series = 4; // Asegúrate de ajustar este valor según el ejercicio
+    const repeticiones = 12; // Asegúrate de ajustar este valor según el ejercicio
+
+    onComplete({
+      ...exercise, // Incluimos el nombre del ejercicio
+      peso: maxWeight, // Peso máximo usado
+      series: series, // Series realizadas
+      repeticiones: repeticiones, // Repeticiones realizadas
+      timeSpent: time, // Tiempo total del ejercicio
+    });
     resetTimer();
-    onClose(); // Cerrar el modal
+    onClose();
+  };
+
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60000);
+    const seconds = Math.floor((time % 60000) / 1000);
+    const milliseconds = (time % 1000) / 10;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>{exercise}</h3>
+          <h3>{exercise.name}</h3>
           <button className="close-btn" onClick={onClose}>✖</button>
         </div>
         <div className="modal-body">
@@ -67,9 +89,10 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
         </div>
         <div className="modal-footer">
           <div className="timer">
-            <p>{new Date(time * 1000).toISOString().substr(11, 8)}</p>
+            <p>{formatTime(time)}</p>
             <button onClick={startTimer}>Empezar</button>
             <button onClick={pauseTimer}>⏸</button>
+            <button onClick={resetTimer}>🔄</button>
           </div>
           <button className="complete-btn" onClick={handleComplete}>Terminar</button>
         </div>

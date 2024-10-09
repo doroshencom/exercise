@@ -6,31 +6,31 @@ import { db } from '../firebaseConfig';  // Importamos Firestore
 const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const workoutsByDay = {
     'Pecho y Tríceps': [
-      { name: 'Flexiones', completed: false },
-      { name: 'Flexiones diamante', completed: false },
-      { name: 'Press de banca con mancuernas', completed: false },
-      { name: 'Press militar con mancuernas', completed: false },
-      { name: 'Fondos de tríceps en silla', completed: false }
+      { name: 'Flexiones', series: 4, repeticiones: 12 },
+      { name: 'Flexiones diamante', series: 4, repeticiones: 12 },
+      { name: 'Press de banca con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15 }
     ],
     'Espalda y Bíceps': [
-      { name: 'Dominadas', completed: false },
-      { name: 'Remo con mancuernas', completed: false },
-      { name: 'Curl de bíceps con mancuernas', completed: false }
+      { name: 'Dominadas', series: 3, repeticiones: 10 },
+      { name: 'Remo con mancuernas', series: 4, repeticiones: 12 },
+      { name: 'Curl de bíceps con mancuernas', series: 4, repeticiones: 10 }
     ],
     'Piernas y Glúteos': [
-      { name: 'Sentadillas', completed: false },
-      { name: 'Peso muerto', completed: false },
-      { name: 'Zancadas', completed: false }
+      { name: 'Sentadillas', series: 4, repeticiones: 12 },
+      { name: 'Peso muerto', series: 4, repeticiones: 10 },
+      { name: 'Zancadas', series: 3, repeticiones: 12 }
     ],
     'Hombros y Abdomen': [
-      { name: 'Press militar con mancuernas', completed: false },
-      { name: 'Elevaciones laterales', completed: false },
-      { name: 'Plancha', completed: false }
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Elevaciones laterales', series: 3, repeticiones: 12 },
+      { name: 'Plancha', series: 3, repeticiones: 30 }
     ],
     'Full Body': [
-      { name: 'Flexiones', completed: false },
-      { name: 'Sentadillas', completed: false },
-      { name: 'Dominadas', completed: false }
+      { name: 'Flexiones', series: 4, repeticiones: 12 },
+      { name: 'Sentadillas', series: 4, repeticiones: 12 },
+      { name: 'Dominadas', series: 3, repeticiones: 10 }
     ]
   };
 
@@ -46,31 +46,36 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     setModalOpen(true);
   };
 
-  const handleCompleteExercise = (exercise, timeSpent) => {
-    setCompletedExercises([...completedExercises, exercise]);
-    setTotalTime(totalTime + timeSpent);
+  const handleCompleteExercise = (exercise) => {
+    setCompletedExercises([...completedExercises, exercise]); // Agregamos los datos completos del ejercicio
     setModalOpen(false);
   };
 
   const handleCompleteWorkout = async () => {
+    console.log("Guardando entrenamiento...");
+    console.log("Ejercicios completados:", completedExercises);
+
     try {
       await addDoc(collection(db, "entrenamientos"), {
         fecha: new Date().toISOString(),
         grupoMuscular: workout,
         ejercicios: completedExercises.map(e => ({
           nombre: e.name,
-          peso: e.peso,  // Peso usado en cada ejercicio
-          series: e.series,
-          repeticiones: e.repeticiones
+          peso: e.peso || null,  // Guardamos el peso máximo
+          series: e.series || 0,  // Guardamos el número de series
+          repeticiones: e.repeticiones || 0  // Guardamos el número de repeticiones
         }))
       });
+      console.log("Entrenamiento guardado con éxito");
       onCompleteWorkout();
     } catch (error) {
       console.error("Error al guardar el entrenamiento:", error);
     }
   };
 
-  const isExerciseCompleted = (exercise) => completedExercises.includes(exercise);
+  const isExerciseCompleted = (exercise) => {
+    return completedExercises.some(e => e.name === exercise.name);
+  };
 
   return (
     <div className="workout-menu">
@@ -82,11 +87,11 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
         {exercises.map((exercise, index) => (
           <button
             key={index}
-            className={`exercise-btn ${isExerciseCompleted(exercise.name) ? 'completed' : ''}`}
-            onClick={() => handleExerciseClick(exercise.name)}
+            className={`exercise-btn ${isExerciseCompleted(exercise) ? 'completed' : ''}`}
+            onClick={() => handleExerciseClick(exercise)}
           >
             {exercise.name}
-            {isExerciseCompleted(exercise.name) && <span className="checkmark">✔</span>}
+            {isExerciseCompleted(exercise) && <span className="checkmark">✔</span>}
           </button>
         ))}
       </div>

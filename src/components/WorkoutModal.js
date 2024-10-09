@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const WorkoutModal = ({ exercise, maxWeight, onClose, onComplete, isExtra }) => {
+const WorkoutModal = ({ exercise, onClose, onComplete, isExtra }) => {
   const [weights, setWeights] = useState(Array(4).fill(''));  // Cada ejercicio puede tener hasta 4 series
   const [time, setTime] = useState(0);  // Tiempo total en milisegundos
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
+
+  // Función para cargar las imágenes dinámicamente
+  const getExerciseImage = (exerciseName) => {
+    try {
+      return require(`../assets/images/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.png`);
+    } catch (error) {
+      console.error(`Imagen no encontrada para el ejercicio: ${exerciseName}`);
+      return require('../assets/images/default.png');  // Imagen por defecto si no se encuentra la del ejercicio
+    }
+  };
 
   useEffect(() => {
     if (timerActive) {
@@ -31,19 +41,16 @@ const WorkoutModal = ({ exercise, maxWeight, onClose, onComplete, isExtra }) => 
   };
 
   const handleComplete = () => {
-    // Tomamos el peso máximo introducido en todas las series y lo calculamos
-    const maxWeightInput = Math.max(...weights.map(w => parseFloat(w) || 0));
-    
-    // Incluimos las series y repeticiones dependiendo del ejercicio
-    const series = 4; // Asegúrate de ajustar este valor según el ejercicio
-    const repeticiones = 12; // Asegúrate de ajustar este valor según el ejercicio
+    const maxWeight = Math.max(...weights.map(w => parseFloat(w) || 0));
+    const series = 4; // Ajustar según el ejercicio
+    const repeticiones = 12; // Ajustar según el ejercicio
 
     onComplete({
-      ...exercise, // Incluimos el nombre del ejercicio
-      peso: maxWeightInput, // Peso máximo usado
-      series: series, // Series realizadas
-      repeticiones: repeticiones, // Repeticiones realizadas
-      timeSpent: time, // Tiempo total del ejercicio
+      ...exercise,
+      peso: maxWeight,
+      series: series,
+      repeticiones: repeticiones,
+      timeSpent: time,
     });
     resetTimer();
     onClose();
@@ -70,18 +77,9 @@ const WorkoutModal = ({ exercise, maxWeight, onClose, onComplete, isExtra }) => 
               <button className="reps-btn">12 reps</button>
             </div>
             <div className="exercise-image">
-              <img src="exercise-placeholder.png" alt="Ejercicio" />
+              <img src={getExerciseImage(exercise.name)} alt={exercise.name} />
             </div>
           </div>
-
-          {/* Mostramos la pastilla con el peso máximo */}
-          {!isExtra && maxWeight !== undefined && (
-            <div className="max-weight-pill">
-              <p>Récord actual: {maxWeight} kg</p>
-            </div>
-          )}
-
-          {/* Inputs de peso para cada serie */}
           {!isExtra && (
             <div className="weights-input">
               {weights.map((weight, index) => (

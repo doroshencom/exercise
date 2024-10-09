@@ -13,8 +13,7 @@ const Home = ({ workouts, onStartWorkout, onViewRecord, onViewData }) => {
       <button className="group-muscle-btn">{todayWorkout}</button>
       <div className="buttons">
         <button className="start-btn" onClick={() => onStartWorkout(todayWorkout)}>ENTRENAR</button>
-        <button className="record-btn" onClick={onViewRecord}>REGISTRO SEMANAL</button>
-        <button className="data-btn" onClick={onViewData}>VER DATOS</button>
+        <button className="record-btn" onClick={onViewData}>VER DATOS</button>
       </div>
       <footer>
         <p>designed & developed by shenko.es</p>

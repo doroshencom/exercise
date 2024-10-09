@@ -1,19 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
 const DataOverview = ({ onGoBack }) => {
   const [trainings, setTrainings] = useState([]);
   const [maxWeights, setMaxWeights] = useState({});
-  const [trainedDays, setTrainedDays] = useState([]);  // Para días entrenados
-  const [liftedKilos, setLiftedKilos] = useState({ weekly: 0, monthly: 0, total: 0 }); // Estado para los kilos levantados
-  const [totalExercises, setTotalExercises] = useState(0); // Estado para ejercicios completados
-  const [activeIndex, setActiveIndex] = useState(null); // Estado para el acordeón
+  const [trainedDays, setTrainedDays] = useState([]);
+  const [liftedKilos, setLiftedKilos] = useState({ weekly: 0, monthly: 0, total: 0 });
+  const [totalTime, setTotalTime] = useState({ weekly: 0, monthly: 0, total: 0 });
+  const [totalExercises, setTotalExercises] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(null);
 
-  const userId = "user_123"; // Identificación del usuario (ajusta según tu implementación)
+  const userId = "user_123";
+
+  // Frases basadas en kilos levantados
+  const getWeightPhrase = (weight) => {
+    if (weight < 100) return "Este mes apenas has movido unas cajas, ¡pero todo suma!";
+    if (weight < 500) return "Este mes has levantado lo suficiente para llenar el maletero de un coche pequeño.";
+    if (weight < 1000) return "¡Has levantado más que el peso de una moto mediana!";
+    if (weight < 5000) return "Este mes has levantado el equivalente a un coche compacto.";
+    if (weight < 10000) return "¡Cuidado! Este mes has levantado lo mismo que un elefante bebé.";
+    return "¡Increíble! Has levantado el peso de un camión lleno de ladrillos.";
+  };
+
+  // Frases basadas en tiempo de ejercicio
+  const getTimePhrase = (time) => {
+    const hours = time / 3600000; // Convertimos el tiempo a horas
+    if (hours < 1) return "Con ese tiempo podrías haber visto un episodio de tu serie favorita.";
+    if (hours < 5) return "Has entrenado lo suficiente para ver una maratón de películas cortas.";
+    if (hours < 10) return "¡Buen trabajo! Has pasado tanto tiempo entrenando como viendo dos temporadas de una serie.";
+    if (hours < 20) return "Con el tiempo que has pasado haciendo ejercicio podrías haber completado varios videojuegos.";
+    return "Has entrenado lo mismo que si hubieras visto una saga entera de películas largas.";
+  };
 
   useEffect(() => {
-    // Función para obtener los entrenamientos desde Firebase
     const fetchTrainings = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "entrenamientos"));
@@ -23,23 +43,22 @@ const DataOverview = ({ onGoBack }) => {
         }));
         setTrainings(trainingData);
         calculateLiftedKilos(trainingData);
+        calculateTotalTime(trainingData);
         calculateTotalExercises(trainingData);
       } catch (error) {
         console.error("Error al obtener entrenamientos:", error);
       }
     };
 
-    // Función para obtener los días entrenados desde Firebase
     const fetchTrainedDays = async () => {
       try {
-        const docRef = doc(db, "diasEntrenados", userId);
-        const docSnap = await getDoc(docRef);
+        const docRef = collection(db, "diasEntrenados");
+        const docSnap = await getDocs(docRef);
 
-        if (docSnap.exists()) {
-          const daysData = docSnap.data().days || [];
+        if (!docSnap.empty) {
+          const daysData = docSnap.docs[0].data().days || [];
           setTrainedDays(daysData);
         } else {
-          console.log("No se encontraron días entrenados.");
           setTrainedDays([]);
         }
       } catch (error) {
@@ -47,26 +66,6 @@ const DataOverview = ({ onGoBack }) => {
       }
     };
 
-    const fetchMaxWeights = async () => {
-      try {
-        const docRef = collection(db, "pesosMaximos");
-        const docSnap = await getDocs(docRef);
-
-        if (!docSnap.empty) {
-          let maxWeightsData = {};
-          docSnap.forEach((doc) => {
-            maxWeightsData = { ...maxWeightsData, ...doc.data() };
-          });
-          setMaxWeights(maxWeightsData);
-        } else {
-          console.log("No se encontraron pesos máximos.");
-        }
-      } catch (error) {
-        console.error("Error al obtener los pesos máximos:", error);
-      }
-    };
-
-    // Función para calcular los kilos levantados (semana, mes y total)
     const calculateLiftedKilos = (trainingData) => {
       const currentWeek = new Date().getWeek();
       const currentMonth = new Date().getMonth() + 1;
@@ -99,7 +98,35 @@ const DataOverview = ({ onGoBack }) => {
       setLiftedKilos({ weekly: weeklyTotal, monthly: monthlyTotal, total });
     };
 
-    // Función para calcular el total de ejercicios completados
+    const calculateTotalTime = (trainingData) => {
+      const currentWeek = new Date().getWeek();
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+
+      let weeklyTotal = 0;
+      let monthlyTotal = 0;
+      let total = 0;
+
+      trainingData.forEach(training => {
+        const trainingDate = new Date(training.fecha);
+        const week = trainingDate.getWeek();
+        const month = trainingDate.getMonth() + 1;
+        const year = trainingDate.getFullYear();
+
+        total += training.tiempoTotal || 0;
+
+        if (year === currentYear && month === currentMonth) {
+          monthlyTotal += training.tiempoTotal || 0;
+        }
+
+        if (year === currentYear && week === currentWeek) {
+          weeklyTotal += training.tiempoTotal || 0;
+        }
+      });
+
+      setTotalTime({ weekly: weeklyTotal, monthly: monthlyTotal, total });
+    };
+
     const calculateTotalExercises = (trainingData) => {
       let totalExercisesCount = 0;
       trainingData.forEach(training => {
@@ -109,21 +136,13 @@ const DataOverview = ({ onGoBack }) => {
     };
 
     fetchTrainings();
-    fetchTrainedDays();  // Asegurarse de que los días entrenados se obtienen correctamente
-    fetchMaxWeights();
+    fetchTrainedDays();
   }, []);
 
-  // Función para formatear los días entrenados en el formato "Día, DD:MM:AAAA"
-  const formatDateWithDay = (dateString) => {
-    const date = new Date(dateString);
-    const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-    let formattedDate = date.toLocaleDateString('es-ES', options).replace(',', '');
-    formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-    return formattedDate;
-  };
-
-  const toggleAccordion = (index) => {
-    setActiveIndex(activeIndex === index ? null : index); // Si se hace clic en el mismo, colapsa. Si es otro, expande
+  const formatTime = (milliseconds) => {
+    const hours = Math.floor(milliseconds / 3600000);
+    const minutes = Math.floor((milliseconds % 3600000) / 60000);
+    return `${hours} horas ${minutes} minutos`;
   };
 
   return (
@@ -162,6 +181,16 @@ const DataOverview = ({ onGoBack }) => {
         <p><strong>Esta semana:</strong> {liftedKilos.weekly || 0} kg</p>
         <p><strong>Este mes:</strong> {liftedKilos.monthly || 0} kg</p>
         <p><strong>Total:</strong> {liftedKilos.total || 0} kg</p>
+        <p>{getWeightPhrase(liftedKilos.total)}</p>
+      </section>
+
+      {/* Sección de tiempo de ejercicio */}
+      <section>
+        <h2>Tiempo de ejercicio</h2>
+        <p><strong>Esta semana:</strong> {formatTime(totalTime.weekly)}</p>
+        <p><strong>Este mes:</strong> {formatTime(totalTime.monthly)}</p>
+        <p><strong>Total:</strong> {formatTime(totalTime.total)}</p>
+        <p>{getTimePhrase(totalTime.total)}</p>
       </section>
 
       {/* Sección de seguimiento con acordeón */}
@@ -171,10 +200,10 @@ const DataOverview = ({ onGoBack }) => {
           <ul>
             {trainings.map((training, index) => (
               <li key={training.id}>
-                <div onClick={() => toggleAccordion(index)} style={{ cursor: 'pointer' }}>
-                  <strong>{formatDateWithDay(training.fecha)}</strong> - {training.grupoMuscular}
+                <div onClick={() => setActiveIndex(activeIndex === index ? null : index)} style={{ cursor: 'pointer' }}>
+                  <strong>{new Date(training.fecha).toLocaleDateString()} - {training.grupoMuscular}</strong>
                 </div>
-                {activeIndex === index && ( // Solo muestra los detalles si el acordeón está activo
+                {activeIndex === index && (
                   <ul>
                     {training.ejercicios.map((ejercicio, i) => (
                       <li key={i}>
@@ -196,7 +225,7 @@ const DataOverview = ({ onGoBack }) => {
 };
 
 // Función auxiliar para obtener la semana actual del año
-Date.prototype.getWeek = function() {
+Date.prototype.getWeek = function () {
   const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
   const pastDaysOfYear = (this - firstDayOfYear) / 86400000;
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);

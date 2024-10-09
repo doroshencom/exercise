@@ -178,8 +178,8 @@ body {
   }
   
   .exercise-image img {
-    width: 100px;
-    height: 100px;
+    width: fit-content;
+    height: 250px;
     margin-bottom: 10px;
   }
   

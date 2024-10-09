@@ -13,7 +13,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
       { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15 }
     ],
     'Espalda y Bíceps': [
-      { name: 'Dominadas', series: 3, repeticiones: 10 },
+      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 },
       { name: 'Remo con mancuernas', series: 4, repeticiones: 12 },
       { name: 'Curl de bíceps con mancuernas', series: 4, repeticiones: 10 }
     ],
@@ -30,7 +30,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     'Full Body': [
       { name: 'Flexiones', series: 4, repeticiones: 12 },
       { name: 'Sentadillas', series: 4, repeticiones: 12 },
-      { name: 'Dominadas', series: 3, repeticiones: 10 }
+      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 }
     ]
   };
 

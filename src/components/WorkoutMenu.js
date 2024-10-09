@@ -6,31 +6,31 @@ import { db } from '../firebaseConfig';
 const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const workoutsByDay = {
     'Pecho y Tríceps': [
-      { name: 'Flexiones', series: 4, repeticiones: 12 },
-      { name: 'Flexiones diamante', series: 4, repeticiones: 12 },
-      { name: 'Press de banca con mancuernas', series: 4, repeticiones: 10 },
-      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
-      { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15 }
+      { name: 'Flexiones', series: 4, repeticiones: 12 }, // done
+      { name: 'Flexiones diamante', series: 4, repeticiones: 12 }, // done
+      { name: 'Press de banca con mancuernas', series: 4, repeticiones: 10 }, // done
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 }, // done
+      { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15 } // done
     ],
     'Espalda y Bíceps': [
-      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 },
-      { name: 'Remo con mancuernas', series: 4, repeticiones: 12 },
+      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 }, // done
+      { name: 'Remo con mancuernas', series: 4, repeticiones: 12 }, // done
       { name: 'Curl de bíceps con mancuernas', series: 4, repeticiones: 10 }
     ],
     'Piernas y Glúteos': [
-      { name: 'Sentadillas', series: 4, repeticiones: 12 },
-      { name: 'Peso muerto', series: 4, repeticiones: 10 },
-      { name: 'Zancadas', series: 3, repeticiones: 12 }
+      { name: 'Sentadillas', series: 4, repeticiones: 12 }, // done
+      { name: 'Peso muerto', series: 4, repeticiones: 10 }, // done
+      { name: 'Zancadas', series: 3, repeticiones: 12 } // done
     ],
     'Hombros y Abdomen': [
-      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
-      { name: 'Elevaciones laterales', series: 3, repeticiones: 12 },
-      { name: 'Plancha', series: 3, repeticiones: 30 }
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 }, // done
+      { name: 'Elevaciones laterales', series: 3, repeticiones: 12 }, // done
+      { name: 'Plancha', series: 3, repeticiones: 30 } // done
     ],
     'Full Body': [
-      { name: 'Flexiones', series: 4, repeticiones: 12 },
-      { name: 'Sentadillas', series: 4, repeticiones: 12 },
-      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 }
+      { name: 'Flexiones', series: 4, repeticiones: 12 }, // done
+      { name: 'Sentadillas', series: 4, repeticiones: 12 }, // done
+      { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 } // done
     ]
   };
 

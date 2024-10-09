@@ -39,6 +39,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const [completedExercises, setCompletedExercises] = useState([]);
   const [totalTime, setTotalTime] = useState(0); // Tiempo total acumulado de todos los ejercicios
   const [trainedDays, setTrainedDays] = useState([]);
+  const [maxWeight, setMaxWeight] = useState(null); // Estado para el peso máximo del ejercicio
 
   const userId = "user_123"; // Reemplaza con el id real del usuario
 
@@ -87,8 +88,24 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     }
   };
 
-  const handleExerciseClick = (exercise) => {
+  const handleExerciseClick = async (exercise) => {
     setSelectedExercise(exercise);
+
+    // Obtener el peso máximo desde Firebase
+    try {
+      const docRef = doc(db, "pesosMaximos", userId); // Ajustar el ID de usuario según tu implementación
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const maxWeights = docSnap.data();
+        setMaxWeight(maxWeights[exercise.name] || 0); // Obtenemos el récord del ejercicio seleccionado
+      } else {
+        setMaxWeight(null); // Si no hay récord, lo dejamos vacío
+      }
+    } catch (error) {
+      console.error("Error al obtener el peso máximo:", error);
+      setMaxWeight(null); // Si hay error, lo dejamos vacío
+    }
+
     setModalOpen(true);
   };
 
@@ -191,9 +208,10 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
       {modalOpen && (
         <WorkoutModal
           exercise={selectedExercise}
+          maxWeight={maxWeight} // Pasamos el peso máximo a la modal
           onClose={() => setModalOpen(false)}
           onComplete={handleCompleteExercise}
-          isExtra={selectedExercise === 'Plancha'}
+          isExtra={selectedExercise.name === 'Plancha'} // No mostramos peso para ejercicios "extra"
         />
       )}
       <footer>

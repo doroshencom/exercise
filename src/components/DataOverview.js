@@ -5,7 +5,9 @@ import { db } from '../firebaseConfig';
 const DataOverview = ({ onGoBack }) => {
   const [trainings, setTrainings] = useState([]);
   const [maxWeights, setMaxWeights] = useState({});
-  const [trainedDays, setTrainedDays] = useState([]);
+  const [trainedDays, setTrainedDays] = useState([]);  // Para días entrenados
+  const [liftedKilos, setLiftedKilos] = useState({ weekly: 0, monthly: 0, total: 0 }); // Estado para los kilos levantados
+  const [totalExercises, setTotalExercises] = useState(0); // Estado para ejercicios completados
   const [activeIndex, setActiveIndex] = useState(null); // Estado para el acordeón
 
   const userId = "user_123"; // Identificación del usuario (ajusta según tu implementación)
@@ -20,24 +22,10 @@ const DataOverview = ({ onGoBack }) => {
           ...doc.data()
         }));
         setTrainings(trainingData);
+        calculateLiftedKilos(trainingData);
+        calculateTotalExercises(trainingData);
       } catch (error) {
         console.error("Error al obtener entrenamientos:", error);
-      }
-    };
-
-    // Función para obtener los pesos máximos desde Firebase
-    const fetchMaxWeights = async () => {
-      try {
-        const docRef = doc(db, "pesosMaximos", userId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setMaxWeights(docSnap.data());
-        } else {
-          console.log("No se encontraron pesos máximos.");
-        }
-      } catch (error) {
-        console.error("Error al obtener los pesos máximos:", error);
       }
     };
 
@@ -48,18 +36,81 @@ const DataOverview = ({ onGoBack }) => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setTrainedDays(docSnap.data().days || []);
+          const daysData = docSnap.data().days || [];
+          setTrainedDays(daysData);
         } else {
           console.log("No se encontraron días entrenados.");
+          setTrainedDays([]);
         }
       } catch (error) {
         console.error("Error al obtener los días entrenados:", error);
       }
     };
 
+    const fetchMaxWeights = async () => {
+      try {
+        const docRef = collection(db, "pesosMaximos");
+        const docSnap = await getDocs(docRef);
+
+        if (!docSnap.empty) {
+          let maxWeightsData = {};
+          docSnap.forEach((doc) => {
+            maxWeightsData = { ...maxWeightsData, ...doc.data() };
+          });
+          setMaxWeights(maxWeightsData);
+        } else {
+          console.log("No se encontraron pesos máximos.");
+        }
+      } catch (error) {
+        console.error("Error al obtener los pesos máximos:", error);
+      }
+    };
+
+    // Función para calcular los kilos levantados (semana, mes y total)
+    const calculateLiftedKilos = (trainingData) => {
+      const currentWeek = new Date().getWeek();
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+
+      let weeklyTotal = 0;
+      let monthlyTotal = 0;
+      let total = 0;
+
+      trainingData.forEach(training => {
+        const trainingDate = new Date(training.fecha);
+        const week = trainingDate.getWeek();
+        const month = trainingDate.getMonth() + 1;
+        const year = trainingDate.getFullYear();
+
+        training.ejercicios.forEach(ejercicio => {
+          const kilos = (ejercicio.peso || 0) * (ejercicio.series || 0) * (ejercicio.repeticiones || 0);
+          total += kilos;
+
+          if (year === currentYear && month === currentMonth) {
+            monthlyTotal += kilos;
+          }
+
+          if (year === currentYear && week === currentWeek) {
+            weeklyTotal += kilos;
+          }
+        });
+      });
+
+      setLiftedKilos({ weekly: weeklyTotal, monthly: monthlyTotal, total });
+    };
+
+    // Función para calcular el total de ejercicios completados
+    const calculateTotalExercises = (trainingData) => {
+      let totalExercisesCount = 0;
+      trainingData.forEach(training => {
+        totalExercisesCount += training.ejercicios.length;
+      });
+      setTotalExercises(totalExercisesCount);
+    };
+
     fetchTrainings();
+    fetchTrainedDays();  // Asegurarse de que los días entrenados se obtienen correctamente
     fetchMaxWeights();
-    fetchTrainedDays();
   }, []);
 
   // Función para formatear los días entrenados en el formato "Día, DD:MM:AAAA"
@@ -71,7 +122,6 @@ const DataOverview = ({ onGoBack }) => {
     return formattedDate;
   };
 
-  // Función para manejar el acordeón
   const toggleAccordion = (index) => {
     setActiveIndex(activeIndex === index ? null : index); // Si se hace clic en el mismo, colapsa. Si es otro, expande
   };
@@ -83,21 +133,11 @@ const DataOverview = ({ onGoBack }) => {
         <h1>Datos Guardados</h1>
       </div>
 
-      {/* Sección de días entrenados */}
+      {/* Sección de días entrenados y ejercicios completados */}
       <section>
         <h2>Días entrenados</h2>
-        {trainedDays.length > 0 ? (
-          <>
-            <p><strong>Días entrenados:</strong> {trainedDays.length} días</p>
-            <ul>
-              {trainedDays.map((day, index) => (
-                <li key={index}>{formatDateWithDay(day)}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>No hay días entrenados registrados.</p>
-        )}
+        <p><strong>Días entrenados:</strong> {trainedDays.length} días</p>
+        <p><strong>Ejercicios completados:</strong> {totalExercises} ejercicios</p>
       </section>
 
       {/* Sección de pesos máximos */}
@@ -114,6 +154,14 @@ const DataOverview = ({ onGoBack }) => {
         ) : (
           <p>No hay registros de pesos máximos.</p>
         )}
+      </section>
+
+      {/* Sección de kilos levantados */}
+      <section>
+        <h2>Kilos levantados</h2>
+        <p><strong>Esta semana:</strong> {liftedKilos.weekly || 0} kg</p>
+        <p><strong>Este mes:</strong> {liftedKilos.monthly || 0} kg</p>
+        <p><strong>Total:</strong> {liftedKilos.total || 0} kg</p>
       </section>
 
       {/* Sección de seguimiento con acordeón */}
@@ -145,6 +193,13 @@ const DataOverview = ({ onGoBack }) => {
       </section>
     </div>
   );
+};
+
+// Función auxiliar para obtener la semana actual del año
+Date.prototype.getWeek = function() {
+  const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
+  const pastDaysOfYear = (this - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 };
 
 export default DataOverview;

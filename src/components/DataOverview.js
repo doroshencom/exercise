@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
 const DataOverview = ({ onGoBack }) => {
@@ -10,8 +10,10 @@ const DataOverview = ({ onGoBack }) => {
   const [totalTime, setTotalTime] = useState({ weekly: 0, monthly: 0, total: 0 });
   const [totalExercises, setTotalExercises] = useState(0);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [bodyWeight, setBodyWeight] = useState(90); // Añadimos el peso corporal predeterminado
+  const [isEditingWeight, setIsEditingWeight] = useState(false); // Estado para editar el peso
 
-  const userId = "user_123";
+  const userId = "user_123"; // Reemplaza con el id real del usuario
 
   // Frases basadas en kilos levantados
   const getWeightPhrase = (weight) => {
@@ -66,78 +68,101 @@ const DataOverview = ({ onGoBack }) => {
       }
     };
 
-    const calculateLiftedKilos = (trainingData) => {
-      const currentWeek = new Date().getWeek();
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-
-      let weeklyTotal = 0;
-      let monthlyTotal = 0;
-      let total = 0;
-
-      trainingData.forEach(training => {
-        const trainingDate = new Date(training.fecha);
-        const week = trainingDate.getWeek();
-        const month = trainingDate.getMonth() + 1;
-        const year = trainingDate.getFullYear();
-
-        training.ejercicios.forEach(ejercicio => {
-          const kilos = (ejercicio.peso || 0) * (ejercicio.series || 0) * (ejercicio.repeticiones || 0);
-          total += kilos;
-
-          if (year === currentYear && month === currentMonth) {
-            monthlyTotal += kilos;
-          }
-
-          if (year === currentYear && week === currentWeek) {
-            weeklyTotal += kilos;
-          }
-        });
-      });
-
-      setLiftedKilos({ weekly: weeklyTotal, monthly: monthlyTotal, total });
-    };
-
-    const calculateTotalTime = (trainingData) => {
-      const currentWeek = new Date().getWeek();
-      const currentMonth = new Date().getMonth() + 1;
-      const currentYear = new Date().getFullYear();
-
-      let weeklyTotal = 0;
-      let monthlyTotal = 0;
-      let total = 0;
-
-      trainingData.forEach(training => {
-        const trainingDate = new Date(training.fecha);
-        const week = trainingDate.getWeek();
-        const month = trainingDate.getMonth() + 1;
-        const year = trainingDate.getFullYear();
-
-        total += training.tiempoTotal || 0;
-
-        if (year === currentYear && month === currentMonth) {
-          monthlyTotal += training.tiempoTotal || 0;
+    const fetchBodyWeight = async () => {
+      try {
+        const docRef = doc(db, "users", userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setBodyWeight(docSnap.data().bodyWeight || 90); // Obtenemos el peso corporal guardado
         }
-
-        if (year === currentYear && week === currentWeek) {
-          weeklyTotal += training.tiempoTotal || 0;
-        }
-      });
-
-      setTotalTime({ weekly: weeklyTotal, monthly: monthlyTotal, total });
-    };
-
-    const calculateTotalExercises = (trainingData) => {
-      let totalExercisesCount = 0;
-      trainingData.forEach(training => {
-        totalExercisesCount += training.ejercicios.length;
-      });
-      setTotalExercises(totalExercisesCount);
+      } catch (error) {
+        console.error("Error al obtener peso corporal:", error);
+      }
     };
 
     fetchTrainings();
     fetchTrainedDays();
-  }, []);
+    fetchBodyWeight();
+  }, [userId]);
+
+  const calculateLiftedKilos = (trainingData) => {
+    const currentWeek = new Date().getWeek();
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    let weeklyTotal = 0;
+    let monthlyTotal = 0;
+    let total = 0;
+
+    trainingData.forEach(training => {
+      const trainingDate = new Date(training.fecha);
+      const week = trainingDate.getWeek();
+      const month = trainingDate.getMonth() + 1;
+      const year = trainingDate.getFullYear();
+
+      training.ejercicios.forEach(ejercicio => {
+        const kilos = (ejercicio.peso || 0) * (ejercicio.series || 0) * (ejercicio.repeticiones || 0);
+        total += kilos;
+
+        if (year === currentYear && month === currentMonth) {
+          monthlyTotal += kilos;
+        }
+
+        if (year === currentYear && week === currentWeek) {
+          weeklyTotal += kilos;
+        }
+      });
+    });
+
+    setLiftedKilos({ weekly: weeklyTotal, monthly: monthlyTotal, total });
+  };
+
+  const calculateTotalTime = (trainingData) => {
+    const currentWeek = new Date().getWeek();
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+
+    let weeklyTotal = 0;
+    let monthlyTotal = 0;
+    let total = 0;
+
+    trainingData.forEach(training => {
+      const trainingDate = new Date(training.fecha);
+      const week = trainingDate.getWeek();
+      const month = trainingDate.getMonth() + 1;
+      const year = trainingDate.getFullYear();
+
+      total += training.tiempoTotal || 0;
+
+      if (year === currentYear && month === currentMonth) {
+        monthlyTotal += training.tiempoTotal || 0;
+      }
+
+      if (year === currentYear && week === currentWeek) {
+        weeklyTotal += training.tiempoTotal || 0;
+      }
+    });
+
+    setTotalTime({ weekly: weeklyTotal, monthly: monthlyTotal, total });
+  };
+
+  const calculateTotalExercises = (trainingData) => {
+    let totalExercisesCount = 0;
+    trainingData.forEach(training => {
+      totalExercisesCount += training.ejercicios.length;
+    });
+    setTotalExercises(totalExercisesCount);
+  };
+
+  const handleSaveBodyWeight = async () => {
+    try {
+      const docRef = doc(db, "users", userId);
+      await setDoc(docRef, { bodyWeight }, { merge: true });
+      setIsEditingWeight(false); // Desactivar la edición después de guardar
+    } catch (error) {
+      console.error("Error al guardar peso corporal:", error);
+    }
+  };
 
   const formatTime = (milliseconds) => {
     const hours = Math.floor(milliseconds / 3600000);
@@ -157,6 +182,27 @@ const DataOverview = ({ onGoBack }) => {
         <h2>Días entrenados</h2>
         <p><strong>Días entrenados:</strong> {trainedDays.length} días</p>
         <p><strong>Ejercicios completados:</strong> {totalExercises} ejercicios</p>
+      </section>
+
+      {/* Sección de peso corporal */}
+      <section>
+        <h2>Peso Corporal</h2>
+        {isEditingWeight ? (
+          <div>
+            <input
+              type="number"
+              value={bodyWeight}
+              onChange={(e) => setBodyWeight(e.target.value)}
+              placeholder="Introduce tu peso corporal"
+            />
+            <button onClick={handleSaveBodyWeight}>Guardar</button>
+          </div>
+        ) : (
+          <div>
+            <p><strong>Peso Corporal Actual:</strong> {bodyWeight} kg</p>
+            <button onClick={() => setIsEditingWeight(true)}>Editar</button>
+          </div>
+        )}
       </section>
 
       {/* Sección de pesos máximos */}

@@ -5,47 +5,42 @@ import { db } from '../firebaseConfig';
 
 const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const workoutsByDay = {
-'Pecho y Tríceps': [
-  { name: 'Flexiones', series: 4, repeticiones: 12 }, // done
-  { name: 'Flexiones diamante', series: 4, repeticiones: 12 }, // done
-  { name: 'Press de banca con mancuernas', series: 4, repeticiones: 10 }, // done
-  { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 }, // done
-  { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15 }, // done
-  { name: 'Aperturas con mancuernas', series: 3, repeticiones: 12 } // done
-],
-
-'Espalda y Bíceps': [
-  { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 }, // done
-  { name: 'Remo con mancuernas', series: 4, repeticiones: 12 }, // done
-  { name: 'Curl de bíceps con mancuernas', series: 4, repeticiones: 10 }, // done
-  { name: 'Pull over con mancuernas', series: 3, repeticiones: 12 }, // done
-  { name: 'Curl concentrado', series: 3, repeticiones: 10 } // done
-],
-
-'Piernas y Glúteos': [
-  { name: 'Sentadillas', series: 4, repeticiones: 12 }, // done
-  { name: 'Peso muerto', series: 4, repeticiones: 10 }, // done
-  { name: 'Zancadas', series: 3, repeticiones: 12 }, // done
-  { name: 'Hip thrust', series: 4, repeticiones: 12 }, // done
-  { name: 'Sentadilla búlgara', series: 3, repeticiones: 10 } // done
-],
-
-'Hombros y Abdomen': [
-  { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 }, // done
-  { name: 'Elevaciones laterales', series: 3, repeticiones: 12 }, // done
-  { name: 'Plancha', series: 3, repeticiones: 12 }, // done
-  { name: 'Elevaciones frontales', series: 3, repeticiones: 12 }, // done
-  { name: 'Encogimientos con mancuernas', series: 3, repeticiones: 15 } // nuevo ejercicio
-],
-
-'Full Body': [
-  { name: 'Flexiones', series: 4, repeticiones: 12 }, // done
-  { name: 'Sentadillas', series: 4, repeticiones: 12 }, // done
-  { name: 'Dominadas / remo con plancha', series: 3, repeticiones: 10 }, // done
-  { name: 'Peso muerto rumano', series: 3, repeticiones: 10 }, // nuevo ejercicio
-  { name: 'Press de hombros con mancuernas', series: 3, repeticiones: 10 } // nuevo ejercicio
-]
-
+    'Pecho y Tríceps': [
+      { name: 'Flexiones', series: 4, repeticiones: 12, isBodyWeight: true },
+      { name: 'Flexiones diamante', series: 4, repeticiones: 12, isBodyWeight: true },
+      { name: 'Press de banca con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Fondos de tríceps en silla', series: 3, repeticiones: 15, isBodyWeight: true },
+      { name: 'Aperturas con mancuernas', series: 3, repeticiones: 12 } // nuevo ejercicio
+    ],
+    'Espalda y Bíceps': [
+      { name: 'Dominadas', series: 3, repeticiones: 10, isBodyWeight: true },
+      { name: 'Remo con mancuernas', series: 4, repeticiones: 12 },
+      { name: 'Curl de bíceps con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Pull over con mancuernas', series: 3, repeticiones: 12 }, // nuevo ejercicio
+      { name: 'Curl concentrado', series: 3, repeticiones: 10 } // nuevo ejercicio
+    ],
+    'Piernas y Glúteos': [
+      { name: 'Sentadillas', series: 4, repeticiones: 12, isBodyWeight: true },
+      { name: 'Peso muerto', series: 4, repeticiones: 10 },
+      { name: 'Zancadas', series: 3, repeticiones: 12, isBodyWeight: true },
+      { name: 'Hip thrust', series: 4, repeticiones: 12 }, // nuevo ejercicio
+      { name: 'Sentadilla búlgara', series: 3, repeticiones: 10 } // nuevo ejercicio
+    ],
+    'Hombros y Abdomen': [
+      { name: 'Press militar con mancuernas', series: 4, repeticiones: 10 },
+      { name: 'Elevaciones laterales', series: 3, repeticiones: 12 },
+      { name: 'Plancha', series: 3, repeticiones: 30, isBodyWeight: true },
+      { name: 'Elevaciones frontales', series: 3, repeticiones: 12 }, // nuevo ejercicio
+      { name: 'Encogimientos con mancuernas', series: 3, repeticiones: 15 } // nuevo ejercicio
+    ],
+    'Full Body': [
+      { name: 'Flexiones', series: 4, repeticiones: 12, isBodyWeight: true },
+      { name: 'Sentadillas', series: 4, repeticiones: 12, isBodyWeight: true },
+      { name: 'Dominadas', series: 3, repeticiones: 10, isBodyWeight: true },
+      { name: 'Peso muerto rumano', series: 3, repeticiones: 10 }, // nuevo ejercicio
+      { name: 'Press de hombros con mancuernas', series: 3, repeticiones: 10 } // nuevo ejercicio
+    ]
   };
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -225,7 +220,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
           maxWeight={maxWeight} // Pasamos el peso máximo a la modal
           onClose={() => setModalOpen(false)}
           onComplete={handleCompleteExercise}
-        
+          isBodyWeight={selectedExercise.isBodyWeight} // Pasamos la propiedad isBodyWeight
         />
       )}
       <footer>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import playIcon from '../assets/btn/play.svg'; // Importa el SVG del botón play
-import pauseIcon from '../assets/btn/pause.svg'; // Importa el SVG del botón pausa
-import resetIcon from '../assets/btn/reset.svg'; // Importa el SVG del botón reset
+import playIcon from '../assets/btn/play.svg';
+import pauseIcon from '../assets/btn/pause.svg';
+import resetIcon from '../assets/btn/reset.svg';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
 const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123" }) => {
-  const [weights, setWeights] = useState(Array(4).fill(''));  // Cada ejercicio puede tener hasta 4 series
+  const [weights, setWeights] = useState(Array(exercise.series).fill(''));
   const [extraWeights, setExtraWeights] = useState(Array(exercise.series).fill(''));
   const [bodyWeight, setBodyWeight] = useState(90);  // Peso corporal predeterminado
+  const [maxWeight, setMaxWeight] = useState(0);  // Peso máximo para este ejercicio
   const [time, setTime] = useState(0);  // Tiempo total en milisegundos
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
@@ -20,22 +21,46 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       if (docSnap.exists()) {
         const userData = docSnap.data();
         setBodyWeight(userData.bodyWeight || 90);
-      } else {
-        // Si no hay datos de usuario, inicializamos con el valor predeterminado
-        await setDoc(docRef, { bodyWeight: 90 });
       }
     };
+
+    const fetchMaxWeight = async () => {
+      const docRef = doc(db, "pesosMaximos", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const maxWeights = docSnap.data();
+        setMaxWeight(maxWeights[exercise.name] || 0); // Obtener el peso máximo para el ejercicio
+      }
+    };
+
     fetchBodyWeight();
-  }, [userId]);
+    fetchMaxWeight();
+  }, [userId, exercise.name]);
 
   const handleSaveBodyWeight = async () => {
     const docRef = doc(db, "users", userId);
     await setDoc(docRef, { bodyWeight }, { merge: true });
   };
 
-  // Función para cargar las imágenes dinámicamente
+  const updateMaxWeight = async (newMaxWeight) => {
+    const docRef = doc(db, "pesosMaximos", userId);
+    const docSnap = await getDoc(docRef);
+
+    let maxWeights = {};
+    if (docSnap.exists()) {
+      maxWeights = docSnap.data();
+    }
+
+    if (newMaxWeight > (maxWeights[exercise.name] || 0)) {
+      maxWeights[exercise.name] = newMaxWeight; // Actualizar el peso máximo solo si es mayor
+      await setDoc(docRef, maxWeights, { merge: true });
+      setMaxWeight(newMaxWeight); // Actualizar el estado con el nuevo peso máximo
+    }
+  };
+
   const getExerciseImage = (exerciseName) => {
     try {
+      // Asegúrate de que las imágenes tengan nombres válidos y estén en la carpeta correcta
       return require(`../assets/images/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.png`);
     } catch (error) {
       console.error(`Imagen no encontrada para el ejercicio: ${exerciseName}`);
@@ -74,21 +99,21 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
   };
 
   const handleComplete = () => {
-    const maxWeight = Math.max(...weights.map(w => parseFloat(w) || 0));
-    const totalWeight = bodyWeight + maxWeight;
-    const series = exercise.series;
-    const repeticiones = exercise.repeticiones;
+    const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));  // Peso máximo en una serie
+    const totalWeight = maxSeriesWeight;  // Solo el peso de la serie, sin el peso corporal
+
+    updateMaxWeight(maxSeriesWeight); // Actualizamos el peso máximo si es necesario
 
     onComplete({
       ...exercise,
-      peso: totalWeight, // Guardamos el peso total
-      series: series,
-      repeticiones: repeticiones,
+      peso: totalWeight,  // Guardamos el peso máximo de la serie
+      series: exercise.series,
+      repeticiones: exercise.repeticiones,
       timeSpent: time,
     });
 
     if (isBodyWeight) {
-      handleSaveBodyWeight(); // Guardamos el peso corporal si es un ejercicio de peso corporal
+      handleSaveBodyWeight();  // Guardamos el peso corporal si es un ejercicio de peso corporal
     }
 
     resetTimer();
@@ -117,6 +142,7 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
             <div className="pill-container">
               <span className="pill">{exercise.series} series</span>
               <span className="pill">{exercise.repeticiones} reps</span>
+              <span className="pill">Peso Máximo: {maxWeight} kg</span>  {/* Mostrar el peso máximo actual */}
             </div>
           </div>
           {isBodyWeight && (

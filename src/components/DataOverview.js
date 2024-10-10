@@ -10,30 +10,12 @@ const DataOverview = ({ onGoBack }) => {
   const [totalTime, setTotalTime] = useState({ weekly: 0, monthly: 0, total: 0 });
   const [totalExercises, setTotalExercises] = useState(0);
   const [activeIndex, setActiveIndex] = useState(null);
-  const [bodyWeight, setBodyWeight] = useState(90); // Añadimos el peso corporal predeterminado
-  const [isEditingWeight, setIsEditingWeight] = useState(false); // Estado para editar el peso
+  const [bodyWeight, setBodyWeight] = useState(90); 
+  const [isEditingWeight, setIsEditingWeight] = useState(false); 
+  const [weightHistory, setWeightHistory] = useState([]); 
+  const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const userId = "user_123"; // Reemplaza con el id real del usuario
-
-  // Frases basadas en kilos levantados
-  const getWeightPhrase = (weight) => {
-    if (weight < 100) return "Este mes apenas has movido unas cajas, ¡pero todo suma!";
-    if (weight < 500) return "Este mes has levantado lo suficiente para llenar el maletero de un coche pequeño.";
-    if (weight < 1000) return "¡Has levantado más que el peso de una moto mediana!";
-    if (weight < 5000) return "Este mes has levantado el equivalente a un coche compacto.";
-    if (weight < 10000) return "¡Cuidado! Este mes has levantado lo mismo que un elefante bebé.";
-    return "¡Increíble! Has levantado el peso de un camión lleno de ladrillos.";
-  };
-
-  // Frases basadas en tiempo de ejercicio
-  const getTimePhrase = (time) => {
-    const hours = time / 3600000; // Convertimos el tiempo a horas
-    if (hours < 1) return "Con ese tiempo podrías haber visto un episodio de tu serie favorita.";
-    if (hours < 5) return "Has entrenado lo suficiente para ver una maratón de películas cortas.";
-    if (hours < 10) return "¡Buen trabajo! Has pasado tanto tiempo entrenando como viendo dos temporadas de una serie.";
-    if (hours < 20) return "Con el tiempo que has pasado haciendo ejercicio podrías haber completado varios videojuegos.";
-    return "Has entrenado lo mismo que si hubieras visto una saga entera de películas largas.";
-  };
+  const userId = "user_123"; 
 
   useEffect(() => {
     const fetchTrainings = async () => {
@@ -49,6 +31,18 @@ const DataOverview = ({ onGoBack }) => {
         calculateTotalExercises(trainingData);
       } catch (error) {
         console.error("Error al obtener entrenamientos:", error);
+      }
+    };
+
+    const fetchMaxWeights = async () => {
+      try {
+        const docRef = doc(db, "pesosMaximos", userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setMaxWeights(docSnap.data());
+        }
+      } catch (error) {
+        console.error("Error al obtener pesos máximos:", error);
       }
     };
 
@@ -73,7 +67,9 @@ const DataOverview = ({ onGoBack }) => {
         const docRef = doc(db, "users", userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setBodyWeight(docSnap.data().bodyWeight || 90); // Obtenemos el peso corporal guardado
+          const userData = docSnap.data();
+          setBodyWeight(userData.bodyWeight || 90); 
+          setWeightHistory(userData.weightHistory || []); 
         }
       } catch (error) {
         console.error("Error al obtener peso corporal:", error);
@@ -81,6 +77,7 @@ const DataOverview = ({ onGoBack }) => {
     };
 
     fetchTrainings();
+    fetchMaxWeights();
     fetchTrainedDays();
     fetchBodyWeight();
   }, [userId]);
@@ -157,8 +154,12 @@ const DataOverview = ({ onGoBack }) => {
   const handleSaveBodyWeight = async () => {
     try {
       const docRef = doc(db, "users", userId);
-      await setDoc(docRef, { bodyWeight }, { merge: true });
-      setIsEditingWeight(false); // Desactivar la edición después de guardar
+      const updatedHistory = [...weightHistory, { date: new Date().toISOString(), weight: bodyWeight }];
+      await setDoc(docRef, { bodyWeight, weightHistory: updatedHistory }, { merge: true });
+      setWeightHistory(updatedHistory);
+      setIsEditingWeight(false); 
+      setShowSnackbar(true);
+      setTimeout(() => setShowSnackbar(false), 3000);
     } catch (error) {
       console.error("Error al guardar peso corporal:", error);
     }
@@ -205,6 +206,22 @@ const DataOverview = ({ onGoBack }) => {
         )}
       </section>
 
+      {/* Historial de peso corporal */}
+      <section>
+        <h2>Historial de Peso Corporal</h2>
+        {weightHistory.length > 0 ? (
+          <ul>
+            {weightHistory.map((entry, index) => (
+              <li key={index}>
+                {new Date(entry.date).toLocaleDateString()}: {entry.weight} kg
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No hay historial de cambios de peso corporal.</p>
+        )}
+      </section>
+
       {/* Sección de pesos máximos */}
       <section>
         <h2>Pesos Máximos</h2>
@@ -227,7 +244,6 @@ const DataOverview = ({ onGoBack }) => {
         <p><strong>Esta semana:</strong> {liftedKilos.weekly || 0} kg</p>
         <p><strong>Este mes:</strong> {liftedKilos.monthly || 0} kg</p>
         <p><strong>Total:</strong> {liftedKilos.total || 0} kg</p>
-        <p>{getWeightPhrase(liftedKilos.total)}</p>
       </section>
 
       {/* Sección de tiempo de ejercicio */}
@@ -236,7 +252,6 @@ const DataOverview = ({ onGoBack }) => {
         <p><strong>Esta semana:</strong> {formatTime(totalTime.weekly)}</p>
         <p><strong>Este mes:</strong> {formatTime(totalTime.monthly)}</p>
         <p><strong>Total:</strong> {formatTime(totalTime.total)}</p>
-        <p>{getTimePhrase(totalTime.total)}</p>
       </section>
 
       {/* Sección de seguimiento con acordeón */}
@@ -266,6 +281,9 @@ const DataOverview = ({ onGoBack }) => {
           <p>No hay entrenamientos registrados.</p>
         )}
       </section>
+
+      {/* Snackbar de confirmación */}
+      {showSnackbar && <div className="snackbar">¡Peso guardado correctamente!</div>}
     </div>
   );
 };

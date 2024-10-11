@@ -3,161 +3,104 @@ import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
 const DataOverview = ({ onGoBack }) => {
+  const [trainedDays, setTrainedDays] = useState([]);
+  const [totalExercises, setTotalExercises] = useState(0);
+  const [totalTrainingTime, setTotalTrainingTime] = useState(0);
   const [trainings, setTrainings] = useState([]);
   const [maxWeights, setMaxWeights] = useState({});
-  const [trainedDays, setTrainedDays] = useState([]);
-  const [liftedKilos, setLiftedKilos] = useState({ weekly: 0, monthly: 0, total: 0 });
-  const [totalTime, setTotalTime] = useState({ weekly: 0, monthly: 0, total: 0 });
-  const [totalExercises, setTotalExercises] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [bodyWeight, setBodyWeight] = useState(90); 
-  const [isEditingWeight, setIsEditingWeight] = useState(false); 
-  const [weightHistory, setWeightHistory] = useState([]); 
+  const [bodyWeight, setBodyWeight] = useState(90);
+  const [isEditingWeight, setIsEditingWeight] = useState(false);
+  const [weightHistory, setWeightHistory] = useState([]);
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const userId = "user_123"; 
+  const userId = "user_123";
 
   useEffect(() => {
-    const fetchTrainings = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "entrenamientos"));
-        const trainingData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setTrainings(trainingData);
-        calculateLiftedKilos(trainingData);
-        calculateTotalTime(trainingData);
-        calculateTotalExercises(trainingData);
-      } catch (error) {
-        console.error("Error al obtener entrenamientos:", error);
-      }
+    const fetchData = async () => {
+      await fetchTrainedDays();
+      await fetchBodyWeight();
+      await fetchMaxWeights();
+      await fetchTrainings();
+      await calculateTotalExercises();
     };
-
-    const fetchMaxWeights = async () => {
-      try {
-        const docRef = doc(db, "pesosMaximos", userId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setMaxWeights(docSnap.data());
-        }
-      } catch (error) {
-        console.error("Error al obtener pesos máximos:", error);
-      }
-    };
-
-    const fetchTrainedDays = async () => {
-      try {
-        const docRef = collection(db, "diasEntrenados");
-        const docSnap = await getDocs(docRef);
-
-        if (!docSnap.empty) {
-          const daysData = docSnap.docs[0].data().days || [];
-          setTrainedDays(daysData);
-        } else {
-          setTrainedDays([]);
-        }
-      } catch (error) {
-        console.error("Error al obtener los días entrenados:", error);
-      }
-    };
-
-    const fetchBodyWeight = async () => {
-      try {
-        const docRef = doc(db, "users", userId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          setBodyWeight(userData.bodyWeight || 90); 
-          setWeightHistory(userData.weightHistory || []); 
-        }
-      } catch (error) {
-        console.error("Error al obtener peso corporal:", error);
-      }
-    };
-
-    fetchTrainings();
-    fetchMaxWeights();
-    fetchTrainedDays();
-    fetchBodyWeight();
+    fetchData();
   }, [userId]);
 
-  const calculateLiftedKilos = (trainingData) => {
-    const currentWeek = new Date().getWeek();
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
+  const fetchTrainedDays = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      const trainingData = querySnapshot.docs.map((doc) => doc.data());
 
-    let weeklyTotal = 0;
-    let monthlyTotal = 0;
-    let total = 0;
+      const uniqueDays = [...new Set(trainingData.map((training) => new Date(training.fecha).toLocaleDateString()))];
+      setTrainedDays(uniqueDays);
+    } catch (error) {
+      console.error("Error al obtener los días entrenados:", error);
+    }
+  };
 
-    trainingData.forEach(training => {
-      const trainingDate = new Date(training.fecha);
-      const week = trainingDate.getWeek();
-      const month = trainingDate.getMonth() + 1;
-      const year = trainingDate.getFullYear();
+  const fetchMaxWeights = async () => {
+    try {
+      const docRef = doc(db, "pesosMaximos", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setMaxWeights(docSnap.data());
+      }
+    } catch (error) {
+      console.error("Error al obtener pesos máximos:", error);
+    }
+  };
 
-      training.ejercicios.forEach(ejercicio => {
-        const kilos = (ejercicio.peso || 0) * (ejercicio.series || 0) * (ejercicio.repeticiones || 0);
-        total += kilos;
+  const fetchBodyWeight = async () => {
+    try {
+      const docRef = doc(db, "users", userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        setBodyWeight(userData.bodyWeight || 90);
+        setWeightHistory(userData.weightHistory || []);
+      }
+    } catch (error) {
+      console.error("Error al obtener peso corporal:", error);
+    }
+  };
 
-        if (year === currentYear && month === currentMonth) {
-          monthlyTotal += kilos;
-        }
+  const fetchTrainings = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      const trainingData = querySnapshot.docs.map((doc) => doc.data());
+      setTrainings(trainingData || []);
 
-        if (year === currentYear && week === currentWeek) {
-          weeklyTotal += kilos;
-        }
+      const totalTime = trainingData.reduce((acc, training) => acc + (training.tiempoTotal || 0), 0);
+      setTotalTrainingTime(totalTime);
+    } catch (error) {
+      console.error("Error al obtener entrenamientos:", error);
+    }
+  };
+
+  const calculateTotalExercises = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      let totalExercisesCount = 0;
+
+      querySnapshot.forEach((doc) => {
+        const training = doc.data();
+        totalExercisesCount += (training.ejercicios || []).length;
       });
-    });
 
-    setLiftedKilos({ weekly: weeklyTotal, monthly: monthlyTotal, total });
+      setTotalExercises(totalExercisesCount);
+    } catch (error) {
+      console.error("Error al calcular el total de ejercicios:", error);
+    }
   };
 
-  const calculateTotalTime = (trainingData) => {
-    const currentWeek = new Date().getWeek();
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-
-    let weeklyTotal = 0;
-    let monthlyTotal = 0;
-    let total = 0;
-
-    trainingData.forEach(training => {
-      const trainingDate = new Date(training.fecha);
-      const week = trainingDate.getWeek();
-      const month = trainingDate.getMonth() + 1;
-      const year = trainingDate.getFullYear();
-
-      total += training.tiempoTotal || 0;
-
-      if (year === currentYear && month === currentMonth) {
-        monthlyTotal += training.tiempoTotal || 0;
-      }
-
-      if (year === currentYear && week === currentWeek) {
-        weeklyTotal += training.tiempoTotal || 0;
-      }
-    });
-
-    setTotalTime({ weekly: weeklyTotal, monthly: monthlyTotal, total });
-  };
-
-  const calculateTotalExercises = (trainingData) => {
-    let totalExercisesCount = 0;
-    trainingData.forEach(training => {
-      totalExercisesCount += training.ejercicios.length;
-    });
-    setTotalExercises(totalExercisesCount);
-  };
-
+  // Función para guardar el peso corporal en Firebase
   const handleSaveBodyWeight = async () => {
     try {
       const docRef = doc(db, "users", userId);
       const updatedHistory = [...weightHistory, { date: new Date().toISOString(), weight: bodyWeight }];
       await setDoc(docRef, { bodyWeight, weightHistory: updatedHistory }, { merge: true });
       setWeightHistory(updatedHistory);
-      setIsEditingWeight(false); 
+      setIsEditingWeight(false);
       setShowSnackbar(true);
       setTimeout(() => setShowSnackbar(false), 3000);
     } catch (error) {
@@ -178,11 +121,39 @@ const DataOverview = ({ onGoBack }) => {
         <h1>Datos Guardados</h1>
       </div>
 
-      {/* Sección de días entrenados y ejercicios completados */}
+      {/* Sección de días entrenados */}
       <section>
         <h2>Días entrenados</h2>
         <p><strong>Días entrenados:</strong> {trainedDays.length} días</p>
         <p><strong>Ejercicios completados:</strong> {totalExercises} ejercicios</p>
+      </section>
+
+      {/* Sección de tiempo total de entrenamiento */}
+      <section>
+        <h2>Tiempo Total de Entrenamiento</h2>
+        <p><strong>Tiempo Total:</strong> {formatTime(totalTrainingTime)}</p>
+      </section>
+
+      {/* Sección de seguimiento con acordeones expandibles */}
+      <section>
+        <h2>Seguimiento</h2>
+        {trainings.length > 0 ? (
+          trainings.map((training, index) => (
+            <details key={index}>
+              <summary>{new Date(training.fecha).toLocaleDateString()} - {training.grupoMuscular}</summary>
+              <p><strong>Tiempo Total:</strong> {formatTime(training.tiempoTotal)}</p>
+              <ul>
+                {(training.ejercicios || []).map((ejercicio, i) => (
+                  <li key={i}>
+                    {ejercicio.nombre}: {ejercicio.series} series x {ejercicio.repeticiones} reps, Peso: {ejercicio.peso} kg
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))
+        ) : (
+          <p>No hay entrenamientos registrados.</p>
+        )}
       </section>
 
       {/* Sección de peso corporal */}
@@ -238,61 +209,10 @@ const DataOverview = ({ onGoBack }) => {
         )}
       </section>
 
-      {/* Sección de kilos levantados */}
-      <section>
-        <h2>Kilos levantados</h2>
-        <p><strong>Esta semana:</strong> {liftedKilos.weekly || 0} kg</p>
-        <p><strong>Este mes:</strong> {liftedKilos.monthly || 0} kg</p>
-        <p><strong>Total:</strong> {liftedKilos.total || 0} kg</p>
-      </section>
-
-      {/* Sección de tiempo de ejercicio */}
-      <section>
-        <h2>Tiempo de ejercicio</h2>
-        <p><strong>Esta semana:</strong> {formatTime(totalTime.weekly)}</p>
-        <p><strong>Este mes:</strong> {formatTime(totalTime.monthly)}</p>
-        <p><strong>Total:</strong> {formatTime(totalTime.total)}</p>
-      </section>
-
-      {/* Sección de seguimiento con acordeón */}
-      <section>
-        <h2>Seguimiento</h2>
-        {trainings.length > 0 ? (
-          <ul>
-            {trainings.map((training, index) => (
-              <li key={training.id}>
-                <div onClick={() => setActiveIndex(activeIndex === index ? null : index)} style={{ cursor: 'pointer' }}>
-                  <strong>{new Date(training.fecha).toLocaleDateString()} - {training.grupoMuscular}</strong>
-                </div>
-                {activeIndex === index && (
-                  <ul>
-                    {training.ejercicios.map((ejercicio, i) => (
-                      <li key={i}>
-                        {ejercicio.nombre} - {ejercicio.series} series x {ejercicio.repeticiones} reps
-                        {ejercicio.peso && `, Peso: ${ejercicio.peso} kg`}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No hay entrenamientos registrados.</p>
-        )}
-      </section>
-
       {/* Snackbar de confirmación */}
       {showSnackbar && <div className="snackbar">¡Peso guardado correctamente!</div>}
     </div>
   );
-};
-
-// Función auxiliar para obtener la semana actual del año
-Date.prototype.getWeek = function () {
-  const firstDayOfYear = new Date(this.getFullYear(), 0, 1);
-  const pastDaysOfYear = (this - firstDayOfYear) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
 };
 
 export default DataOverview;

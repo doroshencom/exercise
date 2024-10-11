@@ -2,15 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import playIcon from '../assets/btn/play.svg';
 import pauseIcon from '../assets/btn/pause.svg';
 import resetIcon from '../assets/btn/reset.svg';
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
-const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123" }) => {
+const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workoutGroup }) => {
   const [weights, setWeights] = useState(Array(exercise.series).fill(''));
-  const [extraWeights, setExtraWeights] = useState(Array(exercise.series).fill(''));
-  const [bodyWeight, setBodyWeight] = useState(90);  // Peso corporal predeterminado
-  const [maxWeight, setMaxWeight] = useState(0);  // Peso máximo para este ejercicio
-  const [time, setTime] = useState(0);  // Tiempo total en milisegundos
+  const [bodyWeight, setBodyWeight] = useState(90);  
+  const [maxWeight, setMaxWeight] = useState(0);  
+  const [time, setTime] = useState(0);  
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
 
@@ -29,7 +28,7 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const maxWeights = docSnap.data();
-        setMaxWeight(maxWeights[exercise.name] || 0); // Obtener el peso máximo para el ejercicio
+        setMaxWeight(maxWeights[exercise.name] || 0); 
       }
     };
 
@@ -52,19 +51,67 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
     }
 
     if (newMaxWeight > (maxWeights[exercise.name] || 0)) {
-      maxWeights[exercise.name] = newMaxWeight; // Actualizar el peso máximo solo si es mayor
+      maxWeights[exercise.name] = newMaxWeight;
       await setDoc(docRef, maxWeights, { merge: true });
-      setMaxWeight(newMaxWeight); // Actualizar el estado con el nuevo peso máximo
+      setMaxWeight(newMaxWeight);  
     }
+  };
+
+  const handleComplete = async () => {
+    const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));  
+    const totalWeight = maxSeriesWeight;
+
+    await updateMaxWeight(maxSeriesWeight);
+
+    const newTraining = {
+      nombre: exercise.name,
+      series: exercise.series,
+      repeticiones: exercise.repeticiones,
+      peso: totalWeight,
+      timeSpent: time,
+      fecha: new Date().toISOString(),  
+      grupoMuscular: workoutGroup  // Aseguramos que el grupo muscular se guarde correctamente
+    };
+
+    try {
+      const docRef = collection(db, "entrenamientos");
+      await addDoc(docRef, {
+        fecha: new Date().toISOString(),
+        grupoMuscular: workoutGroup,
+        ejercicios: [newTraining],  // Guardamos como parte de un array de ejercicios
+        tiempoTotal: time
+      });
+
+      const today = new Date().toLocaleDateString();
+      const daysRef = doc(db, "diasEntrenados", userId);
+      const daysSnap = await getDoc(daysRef);
+
+      if (daysSnap.exists()) {
+        const daysData = daysSnap.data();
+        if (!daysData.days.includes(today)) {
+          await setDoc(daysRef, { days: [...daysData.days, today] }, { merge: true });
+        }
+      } else {
+        await setDoc(daysRef, { days: [today] });
+      }
+    } catch (error) {
+      console.error("Error al guardar el entrenamiento:", error);
+    }
+
+    if (isBodyWeight) {
+      await handleSaveBodyWeight();
+    }
+
+    resetTimer();
+    onClose();
   };
 
   const getExerciseImage = (exerciseName) => {
     try {
-      // Asegúrate de que las imágenes tengan nombres válidos y estén en la carpeta correcta
       return require(`../assets/images/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.png`);
     } catch (error) {
       console.error(`Imagen no encontrada para el ejercicio: ${exerciseName}`);
-      return require('../assets/images/default.png');  // Imagen por defecto si no se encuentra la del ejercicio
+      return require('../assets/images/default.png');
     }
   };
 
@@ -92,34 +139,6 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
     setWeights(newWeights);
   };
 
-  const handleExtraWeightChange = (index, value) => {
-    const newExtraWeights = [...extraWeights];
-    newExtraWeights[index] = value;
-    setExtraWeights(newExtraWeights);
-  };
-
-  const handleComplete = () => {
-    const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));  // Peso máximo en una serie
-    const totalWeight = maxSeriesWeight;  // Solo el peso de la serie, sin el peso corporal
-
-    updateMaxWeight(maxSeriesWeight); // Actualizamos el peso máximo si es necesario
-
-    onComplete({
-      ...exercise,
-      peso: totalWeight,  // Guardamos el peso máximo de la serie
-      series: exercise.series,
-      repeticiones: exercise.repeticiones,
-      timeSpent: time,
-    });
-
-    if (isBodyWeight) {
-      handleSaveBodyWeight();  // Guardamos el peso corporal si es un ejercicio de peso corporal
-    }
-
-    resetTimer();
-    onClose();
-  };
-
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60000);
     const seconds = Math.floor((time % 60000) / 1000);
@@ -142,46 +161,20 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
             <div className="pill-container">
               <span className="pill">{exercise.series} series</span>
               <span className="pill">{exercise.repeticiones} reps</span>
-              <span className="pill">Peso Máximo: {maxWeight} kg</span>  {/* Mostrar el peso máximo actual */}
+              <span className="pill">Peso Máximo: {maxWeight} kg</span>
             </div>
           </div>
-          {isBodyWeight && (
-            <div className="body-weight-input">
-              <label>Peso Corporal</label>
+          <div className="weights-input">
+            {weights.map((weight, index) => (
               <input
+                key={index}
                 type="number"
-                value={bodyWeight}
-                onChange={(e) => setBodyWeight(e.target.value)}
-                placeholder="Introduce tu peso corporal"
+                placeholder={`Introduce el peso serie ${index + 1}`}
+                value={weight}
+                onChange={(e) => handleWeightChange(index, e.target.value)}
               />
-            </div>
-          )}
-          {!isBodyWeight && (
-            <div className="weights-input">
-              {weights.map((weight, index) => (
-                <input
-                  key={index}
-                  type="number"
-                  placeholder={`Introduce el peso serie ${index + 1}`}
-                  value={weight}
-                  onChange={(e) => handleWeightChange(index, e.target.value)}
-                />
-              ))}
-            </div>
-          )}
-          {isBodyWeight && (
-            <div className="weights-input">
-              {extraWeights.map((extraWeight, index) => (
-                <input
-                  key={index}
-                  type="number"
-                  placeholder={`Peso extra serie ${index + 1}`}
-                  value={extraWeight}
-                  onChange={(e) => handleExtraWeightChange(index, e.target.value)}
-                />
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
         </div>
         <div className="modal-footer">
           <div className="time-and-complete">

@@ -1,0 +1,92 @@
+.workout-menu {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: -1; /* Asegúrate de que el fondo esté detrás del contenido */
+}
+
+.overlay-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* Ajusta la opacidad según sea necesario */
+  z-index: -1;
+}
+
+
+.content-overlay {
+  position: relative;
+  z-index: 1;
+}
+
+
+.content-overlay {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exercise-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exercise-btn {
+  margin-bottom: 10px;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.completed {
+  background-color: #d4edda; /* Color para ejercicios completados */
+}
+
+.total-time {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.complete-btn {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.complete-btn:hover {
+  background-color: #333;
+}

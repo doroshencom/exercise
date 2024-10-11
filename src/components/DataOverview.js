@@ -158,23 +158,25 @@ const DataOverview = ({ onGoBack }) => {
 
       {/* Sección de peso corporal */}
       <section>
-        <h2>Peso Corporal</h2>
-        {isEditingWeight ? (
-          <div>
-            <input
-              type="number"
-              value={bodyWeight}
-              onChange={(e) => setBodyWeight(e.target.value)}
-              placeholder="Introduce tu peso corporal"
-            />
-            <button onClick={handleSaveBodyWeight}>Guardar</button>
-          </div>
-        ) : (
-          <div>
-            <p><strong>Peso Corporal Actual:</strong> {bodyWeight} kg</p>
-            <button onClick={() => setIsEditingWeight(true)}>Editar</button>
-          </div>
-        )}
+      <h2>Peso Corporal</h2>
+{isEditingWeight ? (
+  <div className="pesoCorporal-editar">
+    <input
+      className="input-peso"
+      type="number"
+      value={bodyWeight}
+      onChange={(e) => setBodyWeight(e.target.value)}
+      placeholder="Introduce tu peso corporal"
+    />
+    <button className="guardar-btn" onClick={handleSaveBodyWeight}>Guardar</button>
+  </div>
+) : (
+  <div className='pesoCorporal'>
+    <p>Peso Corporal Actual: {bodyWeight} kg</p>
+    <button className="pesoCorporal-btn" onClick={() => setIsEditingWeight(true)}>Editar</button>
+  </div>
+)}
+
       </section>
 
       {/* Historial de peso corporal */}

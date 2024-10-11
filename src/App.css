@@ -1,0 +1,151 @@
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+  
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: black;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .home-container {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+  }
+
+  .home {
+    text-align: center;
+    padding: 40px;
+    gap: 30px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .muscle-group {
+    margin: 0px;
+    padding: 0px;
+  }
+  
+  .logo-box img{
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  h1 {
+    font-size: 36px;
+  }
+  
+  p {
+    font-size: 18px;
+  }
+
+
+
+.start-btn {
+  width: 80%;
+  padding: 15px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 15px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+}
+
+.record-btn {
+    width: 80%;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 300;
+    letter-spacing: 10px;
+    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;  
+}
+
+
+.group-muscle-btn {
+    padding: 15px;
+    background-color: #2b2b2b00;
+    color: white;
+    font-weight: 600;
+    border-radius: 50px;
+    font-size: 32px;
+  }
+
+button {
+    appearance: none;
+    text-rendering: auto;
+    color: buttontext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: center;
+    align-items: flex-start;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: white;
+    margin: 0em;
+    padding-inline: 16px;
+    border-width: 0px;
+    border-style: outset;
+    border-color: white;
+    border-image: none;
+    
+}
+
+.footer-logo p{
+ text-decoration: none;
+ font-size: 14px;
+ font-weight: 300;
+}
+
+.footer-logo a{
+    text-decoration: none;
+    color: greenyellow;
+    font-weight: bolder;
+   }
+
+   .paragraph {
+    color: greenyellow;
+    font-size: 14px;
+    padding: 0px;
+    margin: 0px;
+    text-transform: uppercase;
+  }
+
+
+
+  .App {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+
+  }

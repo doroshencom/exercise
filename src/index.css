@@ -1,58 +1,46 @@
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
+  background-color: black;
+  --sb-track-color: #27272746;
+  --sb-thumb-color: yellowgreen;
+  --sb-size: 7px;
 }
 
-button {
-  appearance: none;
-  text-rendering: auto;
-  color: buttontext;
-  letter-spacing: normal;
-  word-spacing: normal;
-  line-height: normal;
-  text-transform: none;
-  text-indent: 0px;
-  text-shadow: none;
-  display: inline-block;
-  text-align: center;
-  align-items: flex-start;
-  cursor: default;
-  box-sizing: border-box;
-  background-color: white;
-  margin: 0em;
-  padding-block: 0px;
-  padding-inline: 16px;
-  border-width: 0px;
-  border-style: outset;
-  border-color: white;
-  border-image: none;
+body::-webkit-scrollbar {
+  width: var(--sb-size);
 }
 
-.home {
-  text-align: center;
-  padding: 20px;
+body::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 3px;
 }
 
-.logo-box {
-  width: 150px;
-  height: 150px;
-  border: 2px solid black;
-  margin: 0 auto 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  font-weight: bold;
+body::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 3px;
 }
 
-.group-muscle-btn {
-  padding: 10px;
-  border-radius: 20px;
-  border: 2px solid black;
-  background: none;
-  font-size: 16px;
-  font-weight: bold;
+.data-overview {
+  --sb-track-color: #27272746;
+  --sb-thumb-color: yellowgreen;
+  --sb-size: 7px;
 }
+
+.data-overview::-webkit-scrollbar {
+  width: var(--sb-size);
+}
+
+.data-overview::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 3px;
+}
+
+.data-overview::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 3px;
+}
+
 
 .buttons {
   margin-top: 40px;
@@ -80,6 +68,8 @@ button {
   border: 2px solid black;
 }
 
+
+
 footer {
   margin-top: 20px;
   font-size: 12px;
@@ -88,25 +78,11 @@ footer {
 /* Estilos para WorkoutMenu y WeeklyRecord */
 .workout-menu, .weekly-record {
   padding: 20px;
+  height: 100vh;
   text-align: center;
 }
 
-.back-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-}
 
-.exercise-btn, .calendar-day {
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 50px;
-  border: 2px solid black;
-  width: 100%;
-  font-size: 16px;
-  font-weight: bold;
-}
 
 .calendar {
   display: flex;
@@ -251,25 +227,7 @@ footer {
   border-radius: 10px;
 }
 
-.pill-container {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  gap: 10px;
-  z-index: 1;
-}
 
-.pill {
-  background-color: white;
-  border: 1px solid rgb(230, 230, 230);
-  color: #6b6b6b;
-  border-radius: 20px;
-  padding: 5px 15px;
-  font-size: 13px;
-  font-weight: 400;
-  box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
-}
 
 .weights-input input {
   width: 95%;
@@ -317,17 +275,19 @@ footer {
   background-color: transparent !important;
   border: none !important;
 }
-
 .data-overview {
   padding: 20px;
-}
-
-.data-overview h1 {
-  text-align: center;
+  max-width: 100vw;
+  overflow-y: auto; /* Permite el scroll vertical */
+  height: 100vh; /* Asegura que ocupe toda la pantalla */
+  box-sizing: border-box; /* Para asegurarse de que padding no exceda el 100% del ancho */
 }
 
 .data-overview section {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+  background-color: #0000007a;
+  border-radius: 15px;
+  padding: 1rem 1rem;
 }
 
 .data-overview ul {
@@ -338,10 +298,71 @@ footer {
 .data-overview li {
   padding: 10px 0;
   border-bottom: 1px solid #ccc;
+  font-size: 14px;
+
 }
 
 .data-overview h2 {
-  margin-bottom: 20px;
+  font-size: 18px;
+  margin-top: 0px;
+  font-weight: 300;
+  color: greenyellow; /* Asegura que los títulos sean legibles */
+}
+
+.data-overview h1 {
+  font-size: 20px;
+  font-weight: 500;
+  
+}
+
+.data-overview p { 
+  text-align: left;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  padding-inline: 0px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media only screen and (max-width: 600px) {
+  .data-overview {
+    padding: 10px;
+    font-size: 14px; /* Reduce ligeramente el tamaño de fuente en pantallas más pequeñas */
+  }
+
+  .back-btn {
+    font-size: 20px; /* Reduce el tamaño del botón de vuelta en pantallas pequeñas */
+  }
+
+  .data-overview h1 {
+    font-size: 24px;
+  }
+
+  .data-overview h2 {
+    font-size: 18px;
+  }
+
+  .data-overview li {
+    font-size: 14px;
+  }
+
+  .data-overview .details {
+    font-size: 14px;
+  }
+
+  .complete-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+  }
 }
 
 footer {
@@ -353,6 +374,91 @@ footer {
 .back-btn {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 36px;
   cursor: pointer;
 }
+
+
+.pesoCorporal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pesoCorporal-btn {
+  background-color: #f0f0f000;
+  color: white;
+  border: solid 1px yellowgreen;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+/* Estilos cuando está en modo edición */
+.pesoCorporal-editar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-peso {
+  width: 80%;
+  max-width: 100px;
+  cursor: pointer;
+  padding: 12px 12px;
+  border: 1px solid yellowgreen;
+  background-color: #f0f0f000;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between; /* Para separar contenido si es necesario */
+  align-items: center;
+  border-radius: 16px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.guardar-btn {
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: solid 1px yellowgreen;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button{
+  font-size: 14px;
+  border-radius: 15px;
+}
+
+/* Aplica estilo al summary */
+details summary {
+  font-size: 14px;
+  cursor: pointer;
+  padding: 12px 12px;
+  border: 1px solid yellowgreen;
+  background-color: #f0f0f000;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between; /* Para separar contenido si es necesario */
+  align-items: center;
+}
+
+/* Cuando el details está abierto, cambia el estilo del summary */
+details[open] summary {
+  background-color: #d0d0d0;
+}
+
+/* Personaliza el triángulo que aparece al lado del summary */
+details summary::marker {
+  color: #333; /* Cambia el color del triángulo */
+}
+
+

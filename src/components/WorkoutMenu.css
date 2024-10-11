@@ -8,85 +8,116 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.background-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  color: white; /* Cambia el color de todos los textos a blanco */
   background-size: cover;
   background-position: center;
-  z-index: -1; /* Asegúrate de que el fondo esté detrás del contenido */
 }
 
-.overlay-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* Ajusta la opacidad según sea necesario */
-  z-index: -1;
+.header h2,
+.total-time p,
+footer p {
+  color: white; /* Asegura que estos textos sean blancos */
 }
 
-
-.content-overlay {
-  position: relative;
-  z-index: 1;
-}
-
-
-.content-overlay {
-  position: relative;
-  z-index: 1;
-  padding: 20px;
-  width: 100%;
-  max-width: 1200px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.exercise-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.exercise-btn {
-  margin-bottom: 10px;
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
+button {
+  appearance: none;
+  text-rendering: auto;
+  color: buttontext;
+  letter-spacing: normal;
+  word-spacing: normal;
+  line-height: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
   text-align: center;
-  font-size: 18px;
+  align-items: flex-start;
+  cursor: default;
+  box-sizing: border-box;
+  background-color: white;
+  margin: 0em;
+  padding-block: 0px;
+  padding-inline: 16px;
+  border-width: 0px;
+  border-style: outset;
+  border-color: white;
+  border-image: none;
 }
 
-.completed {
-  background-color: #d4edda; /* Color para ejercicios completados */
+
+.back-btn {
+  color: white; /* Asegura que el botón de retroceso sea blanco */
 }
 
-.total-time {
-  margin-top: 20px;
-  font-size: 20px;
-}
-
-.complete-btn {
-  margin-top: 30px;
-  padding: 10px 20px;
+.complete-btn-workout {
   background-color: #000;
-  color: #fff;
+  color: white; /* Cambia el color del texto del botón de completar */
   border: none;
+  padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.complete-btn:hover {
-  background-color: #333;
+.complete-btn-workout:hover {
+  background-color: #333; /* Cambia el color del botón al pasar el ratón */
 }
+
+
+.back-btn {
+  color: white; /* Botón de retroceso en blanco */
+}
+
+.group-muscle {
+  color: white; /* Nombre del grupo muscular en blanco */
+}
+
+footer {
+  color: white; /* Texto del footer en blanco */
+}
+
+.exercise-list {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.workout-btn {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  width: 80%;
+  padding: 15px;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+}
+
+.completed {
+  color: white; /* Asegura que los botones completados tengan texto blanco */
+  background-color: #d4edda; /* Cambia el fondo para los botones completados */
+    width: 90%;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 300;
+    letter-spacing: 10px;
+    font-weight: bold;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;  
+
+}
+
+.exercise-btn, .calendar-day {
+  padding: 15px;
+  background-color: #00000094;
+  border: solid 1px #838383a9;
+  color: white;
+  font-weight: 400;
+  border-radius: 30px;
+  width: 100%;
+  font-size: 16px;
+}
+

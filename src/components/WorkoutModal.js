@@ -4,6 +4,7 @@ import pauseIcon from '../assets/btn/pause.svg';
 import resetIcon from '../assets/btn/reset.svg';
 import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
+import './WorkoutModal.css';  // Asegúrate de importar el archivo CSS
 
 const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workoutGroup }) => {
   const [weights, setWeights] = useState(Array(exercise.series).fill(''));
@@ -70,7 +71,7 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       peso: totalWeight,
       timeSpent: time,
       fecha: new Date().toISOString(),  
-      grupoMuscular: workoutGroup  // Aseguramos que el grupo muscular se guarde correctamente
+      grupoMuscular: workoutGroup
     };
 
     try {
@@ -78,7 +79,7 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       await addDoc(docRef, {
         fecha: new Date().toISOString(),
         grupoMuscular: workoutGroup,
-        ejercicios: [newTraining],  // Guardamos como parte de un array de ejercicios
+        ejercicios: [newTraining],
         tiempoTotal: time
       });
 
@@ -108,9 +109,11 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
 
   const getExerciseImage = (exerciseName) => {
     try {
+      // Cambiamos las comillas para asegurarnos de que estén correctamente cerradas
       return require(`../assets/images/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.png`);
     } catch (error) {
       console.error(`Imagen no encontrada para el ejercicio: ${exerciseName}`);
+      // Si no encuentra la imagen específica, retorna una imagen por defecto
       return require('../assets/images/default.png');
     }
   };

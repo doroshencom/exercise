@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import WorkoutModal from './WorkoutModal';
 import { collection, doc, getDoc, setDoc, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
+import './WorkoutMenu.css';
+
+
+// Importamos los fondos según el grupo muscular
+import pechoYTricepsBackground from '../assets/background/pecho_y_triceps.png';
+import espaldaYBicepsBackground from '../assets/background/espalda_y_biceps.png';
+import piernasYGluteosBackground from '../assets/background/piernas_y_gluteos.png';
+import hombrosYAbdomenBackground from '../assets/background/hombros_y_abdomen.png';
+import fullBodyBackground from '../assets/background/full_body.png';
 
 const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const workoutsByDay = {
@@ -68,6 +77,24 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
 
   const exercises = workoutsByDay[workout] || [];
 
+  // Función para obtener el fondo basado en el grupo muscular
+  const getBackgroundImage = (workout) => {
+    switch (workout) {
+      case 'Pecho y Tríceps':
+        return pechoYTricepsBackground;
+      case 'Espalda y Bíceps':
+        return espaldaYBicepsBackground;
+      case 'Piernas y Glúteos':
+        return piernasYGluteosBackground;
+      case 'Hombros y Abdomen':
+        return hombrosYAbdomenBackground;
+      case 'Full Body':
+        return fullBodyBackground;
+      default:
+        return null;
+    }
+  };
+
   const handleExerciseClick = async (exercise) => {
     setSelectedExercise(exercise);
 
@@ -92,7 +119,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const handleCompleteWorkout = async () => {
     await addDoc(collection(db, "entrenamientos"), {
       fecha: new Date().toISOString(),
-      workoutGroup: workout, // Usamos 'workout' para el grupo muscular
+      grupoMuscular: workout,
       ejercicios: completedExercises.map(e => ({
         nombre: e.name,
         peso: e.peso || null,
@@ -117,8 +144,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   };
 
   return (
-    <div className="workout-menu">
-      {/* Capa de contenido */}
+    <div>
       <div className="content-overlay">
         <div className="header">
           <button className="back-btn" onClick={onGoBack}>←</button>
@@ -140,7 +166,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
           <p>Tiempo total</p>
           <p>{formatTime(totalTime)}</p>
         </div>
-        <button className="complete-btn" onClick={handleCompleteWorkout}>
+        <button className="complete-button" onClick={handleCompleteWorkout}>
           COMPLETAR
         </button>
         {modalOpen && (
@@ -150,12 +176,12 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             onClose={() => setModalOpen(false)}
             onComplete={handleCompleteExercise}
             isBodyWeight={selectedExercise.isBodyWeight}
-            workoutGroup={workout} // Pasamos el grupo muscular correctamente
+            grupoMuscular={workout}
           />
         )}
-        <footer>
-          <p>designed & developed by shenko.es</p>
-        </footer>
+      <footer className="footer-logo">
+        <p>designed & developed by <a href='https://shenko.es/'>shenko.es</a></p>
+      </footer>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { collection, doc, getDoc, setDoc, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import './WorkoutMenu.css';
 
-
 // Importamos los fondos según el grupo muscular
 import pechoYTricepsBackground from '../assets/background/pecho_y_triceps.png';
 import espaldaYBicepsBackground from '../assets/background/espalda_y_biceps.png';
@@ -77,7 +76,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
 
   const exercises = workoutsByDay[workout] || [];
 
-  // Función para obtener el fondo basado en el grupo muscular
   const getBackgroundImage = (workout) => {
     switch (workout) {
       case 'Pecho y Tríceps':
@@ -110,9 +108,9 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     setModalOpen(true);
   };
 
-  const handleCompleteExercise = async (exercise) => {
-    setTotalTime((prevTime) => prevTime + exercise.timeSpent);
-    setCompletedExercises([...completedExercises, exercise]);
+  const handleCompleteExercise = (exercise, timeSpent) => {
+    setTotalTime((prevTime) => prevTime + timeSpent); // Acumula el tiempo
+    setCompletedExercises([...completedExercises, { ...exercise, timeSpent }]);
     setModalOpen(false);
   };
 
@@ -138,13 +136,22 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   };
 
   const formatTime = (time) => {
+    if (!time || isNaN(time)) return "0 horas 0 minutos"; // Validación adicional
     const minutes = Math.floor(time / 60000);
     const seconds = Math.floor((time % 60000) / 1000);
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div>
+    <div
+      className="workout-menu"
+      style={{
+        backgroundImage: `url(${getBackgroundImage(workout)})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="content-overlay">
         <div className="header">
           <button className="back-btn" onClick={onGoBack}>←</button>
@@ -179,9 +186,9 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             grupoMuscular={workout}
           />
         )}
-      <footer className="footer-logo">
-        <p>designed & developed by <a href='https://shenko.es/'>shenko.es</a></p>
-      </footer>
+        <footer>
+          <p>designed & developed by shenko.es</p>
+        </footer>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-// firebaseConfig.js
+
 import { initializeApp } from "firebase/app"; // Inicializar la aplicación
 import { getFirestore } from "firebase/firestore"; // Asegurarse de importar Firestore
 
-// Configuración de Firebase (sustituye con tu configuración real)
+
 const firebaseConfig = {
   apiKey: "AIzaSyDClcTWA8IhBiNMtBxJLEazzrAhKHteoms",
   authDomain: "workout-fd0b7.firebaseapp.com",

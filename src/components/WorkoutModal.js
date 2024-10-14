@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import './WorkoutModal.css';  // Asegúrate de importar el archivo CSS
 
-const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workoutGroup }) => {
+const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workout }) => {  // Cambiamos workoutGroup por workout
   const [weights, setWeights] = useState(Array(exercise.series).fill(''));
   const [bodyWeight, setBodyWeight] = useState(90);  
   const [maxWeight, setMaxWeight] = useState(0);  
@@ -71,14 +71,14 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       peso: totalWeight,
       timeSpent: time,
       fecha: new Date().toISOString(),  
-      grupoMuscular: workoutGroup
+      grupoMuscular: workout  // Aseguramos que el valor workout sea el correcto
     };
 
     try {
       const docRef = collection(db, "entrenamientos");
       await addDoc(docRef, {
         fecha: new Date().toISOString(),
-        grupoMuscular: workoutGroup,
+        grupoMuscular: workout,  // Cambiamos workoutGroup por workout aquí también
         ejercicios: [newTraining],
         tiempoTotal: time
       });
@@ -109,11 +109,9 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
 
   const getExerciseImage = (exerciseName) => {
     try {
-      // Cambiamos las comillas para asegurarnos de que estén correctamente cerradas
       return require(`../assets/images/${exerciseName.toLowerCase().replace(/\s+/g, '_')}.png`);
     } catch (error) {
       console.error(`Imagen no encontrada para el ejercicio: ${exerciseName}`);
-      // Si no encuentra la imagen específica, retorna una imagen por defecto
       return require('../assets/images/default.png');
     }
   };

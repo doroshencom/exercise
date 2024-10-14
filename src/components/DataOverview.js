@@ -68,14 +68,20 @@ const DataOverview = ({ onGoBack }) => {
     try {
       const querySnapshot = await getDocs(collection(db, "entrenamientos"));
       const trainingData = querySnapshot.docs.map((doc) => doc.data());
-      setTrainings(trainingData || []);
-
-      const totalTime = trainingData.reduce((acc, training) => acc + (training.tiempoTotal || 0), 0);
+  
+      // Ordenamos los entrenamientos por fecha en orden descendente
+      const sortedTrainingData = trainingData.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+  
+      setTrainings(sortedTrainingData || []);
+  
+      // Calculamos el tiempo total de entrenamiento
+      const totalTime = sortedTrainingData.reduce((acc, training) => acc + (training.tiempoTotal || 0), 0);
       setTotalTrainingTime(totalTime);
     } catch (error) {
       console.error("Error al obtener entrenamientos:", error);
     }
   };
+  
 
   const calculateTotalExercises = async () => {
     try {

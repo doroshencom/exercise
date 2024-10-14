@@ -453,7 +453,8 @@ details summary {
 
 /* Cuando el details está abierto, cambia el estilo del summary */
 details[open] summary {
-  background-color: #d0d0d0;
+  background-color: #000000;
+  border: 2px solid yellowgreen;
 }
 
 /* Personaliza el triángulo que aparece al lado del summary */

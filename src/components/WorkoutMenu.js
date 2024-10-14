@@ -109,27 +109,44 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   };
 
   const handleCompleteExercise = (exercise, timeSpent) => {
+    if (!timeSpent || isNaN(timeSpent)) {
+      console.error("Tiempo inválido pasado a la función handleCompleteExercise.");
+      return;
+    }
+  
     setTotalTime((prevTime) => prevTime + timeSpent); // Acumula el tiempo
     setCompletedExercises([...completedExercises, { ...exercise, timeSpent }]);
     setModalOpen(false);
   };
 
   const handleCompleteWorkout = async () => {
-    await addDoc(collection(db, "entrenamientos"), {
-      fecha: new Date().toISOString(),
-      grupoMuscular: workout,
-      ejercicios: completedExercises.map(e => ({
-        nombre: e.name,
-        peso: e.peso || null,
-        series: e.series || 0,
-        repeticiones: e.repeticiones || 0,
-        timeSpent: e.timeSpent || 0
-      })),
-      tiempoTotal: totalTime
-    });
-
-    onCompleteWorkout();
+    try {
+      if (!workout || completedExercises.length === 0) {
+        console.error("Datos incompletos: grupo muscular o ejercicios faltantes.");
+        return;
+      }
+  
+      await addDoc(collection(db, "entrenamientos"), {
+        fecha: new Date().toISOString(),
+        grupoMuscular: workout, 
+        ejercicios: completedExercises.map(e => ({
+          nombre: e.name,
+          peso: e.peso || 0, // Valor predeterminado si falta peso
+          series: e.series || 0,
+          repeticiones: e.repeticiones || 0,
+          timeSpent: e.timeSpent || 0
+        })),
+        tiempoTotal: totalTime || 0 // Asegurarse de que el tiempo total no sea undefined
+      });
+  
+      console.log("Entrenamiento guardado con éxito.");
+      onCompleteWorkout();
+    } catch (error) {
+      console.error("Error al guardar el entrenamiento:", error);
+    }
   };
+  
+  
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
@@ -183,7 +200,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             onClose={() => setModalOpen(false)}
             onComplete={handleCompleteExercise}
             isBodyWeight={selectedExercise.isBodyWeight}
-            grupoMuscular={workout}
+            workout={workout}
           />
         )}
         <footer>

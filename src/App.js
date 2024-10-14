@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Home from './components/Home';
 import WorkoutMenu from './components/WorkoutMenu';
 import WeeklyRecord from './components/WeeklyRecord';
-import DataOverview from './components/DataOverview';  // Importamos la nueva página
-import './App.css'; // Añade estilos para la Home
+import DataOverview from './components/DataOverview';
+import Login from './components/Login';  // Componente de autenticación
+import { auth } from './firebaseConfig';  // Importamos la autenticación de Firebase
+import { onAuthStateChanged } from 'firebase/auth';
+import './App.css'; 
 
 // Importamos los fondos según el grupo muscular
 import pechoYTricepsBackground from './assets/background/pecho_y_triceps.png';
@@ -16,6 +19,7 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [user, setUser] = useState(null);  // Estado para el usuario autenticado
 
   // Mapeo de los días de la semana a los grupos musculares
   const workouts = {
@@ -26,12 +30,24 @@ function App() {
     viernes: 'Full Body',
   };
 
+  // Listener para los cambios en la autenticación de Firebase
   useEffect(() => {
-    // Obtener el día actual en formato español
-    const today = new Date().toLocaleDateString('es-ES', { weekday: 'long' }).toLowerCase();
-    const todayWorkout = workouts[today] || 'Descanso';  // Si es fin de semana, mostramos "Descanso"
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        console.log('Usuario autenticado: ', currentUser.uid);
+        setUser(currentUser);  // Asegura que el usuario esté definido
+      } else {
+        setUser(null);  // Reinicia el usuario si no está autenticado
+      }
+    });
 
-    // Establecer el fondo según el grupo muscular del día
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const today = new Date().toLocaleDateString('es-ES', { weekday: 'long' }).toLowerCase();
+    const todayWorkout = workouts[today] || 'Descanso'; 
+
     switch (todayWorkout) {
       case 'Pecho y Tríceps':
         setBackgroundImage(pechoYTricepsBackground);
@@ -49,10 +65,10 @@ function App() {
         setBackgroundImage(fullBodyBackground);
         break;
       default:
-        setBackgroundImage(null);  // Fondo vacío para los días de descanso
+        setBackgroundImage(null); 
         break;
     }
-  }, [workouts]);  // Este useEffect se ejecuta solo al cargar la app
+  }, [workouts]);
 
   const handleStartWorkout = (workout) => {
     setSelectedWorkout(workout);
@@ -71,6 +87,11 @@ function App() {
     setCurrentScreen('home');
   };
 
+  // Asegúrate de que el usuario esté autenticado antes de renderizar la pantalla
+  if (!user) {
+    return <Login setUser={setUser} />;
+  }
+
   return (
     <div
       className="App"
@@ -87,14 +108,19 @@ function App() {
           workouts={workouts}
           onStartWorkout={handleStartWorkout}
           onViewRecord={handleViewRecord}
-          onViewData={handleViewData}  // Agregamos la opción para ver los datos
+          onViewData={handleViewData}
         />
       )}
       {currentScreen === 'workoutMenu' && (
-        <WorkoutMenu workout={selectedWorkout} onCompleteWorkout={handleGoBack} onGoBack={handleGoBack} />
+        <WorkoutMenu 
+          workout={selectedWorkout} 
+          onCompleteWorkout={handleGoBack} 
+          onGoBack={handleGoBack} 
+          userId={user.uid}  // Aquí pasamos correctamente el userId
+        />
       )}
       {currentScreen === 'weeklyRecord' && <WeeklyRecord onGoBack={handleGoBack} />}
-      {currentScreen === 'dataOverview' && <DataOverview onGoBack={handleGoBack} />}  {/* Agregamos la página de consulta */}
+      {currentScreen === 'dataOverview' && <DataOverview onGoBack={handleGoBack} userId={user.uid} />}
     </div>
   );
 }

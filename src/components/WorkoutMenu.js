@@ -11,7 +11,7 @@ import piernasYGluteosBackground from '../assets/background/piernas_y_gluteos.pn
 import hombrosYAbdomenBackground from '../assets/background/hombros_y_abdomen.png';
 import fullBodyBackground from '../assets/background/full_body.png';
 
-const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
+const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
   const workoutsByDay = {
     'Pecho y Tríceps': [
       { name: 'Flexiones', series: 4, repeticiones: 12, isBodyWeight: true },
@@ -57,8 +57,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const [totalTime, setTotalTime] = useState(0);
   const [maxWeight, setMaxWeight] = useState(null);
 
-  const userId = "user_123"; // Reemplaza con el id real del usuario
-
   const exercises = workoutsByDay[workout] || [];
 
   const getBackgroundImage = (workout) => {
@@ -81,20 +79,20 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const handleExerciseClick = async (exercise) => {
     setSelectedExercise(exercise);
 
-    const docRef = doc(db, "pesosMaximos", userId);
+    // Aquí ajustamos la referencia para que apunte a la colección correcta de pesosMaximos del usuario
+    const docRef = doc(db, `users/${userId}/pesosMaximos/${exercise.name}`);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const maxWeights = docSnap.data();
-      setMaxWeight(maxWeights[exercise.name] || 0);
+      setMaxWeight(maxWeights.maxWeight || 0);
     } else {
       setMaxWeight(null);
     }
 
     setModalOpen(true);
-  };
+};
 
   const handleCompleteExercise = (exercise, timeSpent) => {
-    console.log("Tiempo pasado:", timeSpent); // Verificar el valor de timeSpent
     if (!timeSpent || isNaN(timeSpent)) {
       console.error("Tiempo inválido pasado a la función handleCompleteExercise.");
       return;
@@ -105,20 +103,15 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     setModalOpen(false);
   };
 
-  useEffect(() => {
-    const total = completedExercises.reduce((acc, exercise) => acc + (exercise.timeSpent || 0), 0);
-    setTotalTime(total);
-  }, [completedExercises]);
-
   const handleCompleteWorkout = async () => {
     try {
       if (!workout) {
-        console.error("Datos incompletos: grupo muscular faltante.");
+        console.error("Grupo muscular no definido.");
         return;
       }
 
-      // Guardar el entrenamiento, incluso si no se han completado ejercicios
-      await addDoc(collection(db, "entrenamientos"), {
+      // Guardar el entrenamiento en la colección entrenamientos del usuario
+      await addDoc(collection(db, `users/${userId}/entrenamientos`), {
         fecha: new Date().toISOString(),
         grupoMuscular: workout,
         ejercicios: completedExercises.map(e => ({
@@ -128,7 +121,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
           repeticiones: e.repeticiones || 0,
           timeSpent: e.timeSpent || 0
         })),
-        tiempoTotal: totalTime || 0 // Asegurarse de que el tiempo total no sea undefined
+        tiempoTotal: totalTime || 0
       });
 
       console.log("Entrenamiento guardado con éxito.");
@@ -136,10 +129,17 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
     } catch (error) {
       console.error("Error al guardar el entrenamiento:", error);
     }
-  };
+};
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
+  };
+
+  const formatTime = (time) => {
+    if (!time || isNaN(time)) return "0 horas 0 minutos"; 
+    const minutes = Math.floor(time / 60000);
+    const seconds = Math.floor((time % 60000) / 1000);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -170,6 +170,11 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
           ))}
         </div>
 
+        <div className="total-time">
+          <p>Tiempo total</p>
+          <p>{formatTime(totalTime)}</p>
+        </div>
+
         <button className="complete-button" onClick={handleCompleteWorkout}>
           COMPLETAR
         </button>
@@ -181,6 +186,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             onComplete={handleCompleteExercise}
             isBodyWeight={selectedExercise.isBodyWeight}
             workout={workout}
+            userId={userId} 
           />
         )}
         <footer className="footer-logo">

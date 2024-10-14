@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 
-const DataOverview = ({ onGoBack }) => {
+const DataOverview = ({ onGoBack, userId }) => {
   const [trainedDays, setTrainedDays] = useState([]);
   const [totalExercises, setTotalExercises] = useState(0);
   const [totalTrainingTime, setTotalTrainingTime] = useState(0);
@@ -13,9 +13,12 @@ const DataOverview = ({ onGoBack }) => {
   const [weightHistory, setWeightHistory] = useState([]);
   const [showSnackbar, setShowSnackbar] = useState(false);
 
-  const userId = "user_123";
-
   useEffect(() => {
+    if (!userId) {
+      console.error("Error: userId es undefined. Asegúrate de que el usuario esté autenticado.");
+      return;
+    }
+
     const fetchData = async () => {
       await fetchTrainedDays();
       await fetchBodyWeight();
@@ -23,12 +26,13 @@ const DataOverview = ({ onGoBack }) => {
       await fetchTrainings();
       await calculateTotalExercises();
     };
+
     fetchData();
   }, [userId]);
 
   const fetchTrainedDays = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      const querySnapshot = await getDocs(collection(db, `users/${userId}/entrenamientos`));
       const trainingData = querySnapshot.docs.map((doc) => doc.data());
 
       const uniqueDays = [...new Set(trainingData.map((training) => new Date(training.fecha).toLocaleDateString()))];
@@ -40,19 +44,22 @@ const DataOverview = ({ onGoBack }) => {
 
   const fetchMaxWeights = async () => {
     try {
-      const docRef = doc(db, "pesosMaximos", userId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setMaxWeights(docSnap.data());
-      }
+      const docRef = collection(db, `users/${userId}/pesosMaximos`);
+      const querySnapshot = await getDocs(docRef);
+      let maxWeights = {};
+      querySnapshot.forEach((doc) => {
+        maxWeights[doc.id] = doc.data().maxWeight;
+      });
+      setMaxWeights(maxWeights);
     } catch (error) {
       console.error("Error al obtener pesos máximos:", error);
     }
   };
+  
 
   const fetchBodyWeight = async () => {
     try {
-      const docRef = doc(db, "users", userId);
+      const docRef = doc(db, `users/${userId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const userData = docSnap.data();
@@ -66,26 +73,22 @@ const DataOverview = ({ onGoBack }) => {
 
   const fetchTrainings = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      const querySnapshot = await getDocs(collection(db, `users/${userId}/entrenamientos`));
       const trainingData = querySnapshot.docs.map((doc) => doc.data());
-  
-      // Ordenamos los entrenamientos por fecha en orden descendente
+
       const sortedTrainingData = trainingData.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-  
       setTrainings(sortedTrainingData || []);
-  
-      // Calculamos el tiempo total de entrenamiento
+
       const totalTime = sortedTrainingData.reduce((acc, training) => acc + (training.tiempoTotal || 0), 0);
       setTotalTrainingTime(totalTime);
     } catch (error) {
       console.error("Error al obtener entrenamientos:", error);
     }
   };
-  
 
   const calculateTotalExercises = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "entrenamientos"));
+      const querySnapshot = await getDocs(collection(db, `users/${userId}/entrenamientos`));
       let totalExercisesCount = 0;
 
       querySnapshot.forEach((doc) => {
@@ -99,10 +102,9 @@ const DataOverview = ({ onGoBack }) => {
     }
   };
 
-  // Función para guardar el peso corporal en Firebase
   const handleSaveBodyWeight = async () => {
     try {
-      const docRef = doc(db, "users", userId);
+      const docRef = doc(db, `users/${userId}`);
       const updatedHistory = [...weightHistory, { date: new Date().toISOString(), weight: bodyWeight }];
       await setDoc(docRef, { bodyWeight, weightHistory: updatedHistory }, { merge: true });
       setWeightHistory(updatedHistory);
@@ -164,25 +166,24 @@ const DataOverview = ({ onGoBack }) => {
 
       {/* Sección de peso corporal */}
       <section>
-      <h2>Peso Corporal</h2>
-{isEditingWeight ? (
-  <div className="pesoCorporal-editar">
-    <input
-      className="input-peso"
-      type="number"
-      value={bodyWeight}
-      onChange={(e) => setBodyWeight(e.target.value)}
-      placeholder="Introduce tu peso corporal"
-    />
-    <button className="guardar-btn" onClick={handleSaveBodyWeight}>Guardar</button>
-  </div>
-) : (
-  <div className='pesoCorporal'>
-    <p>Peso Corporal Actual: {bodyWeight} kg</p>
-    <button className="pesoCorporal-btn" onClick={() => setIsEditingWeight(true)}>Editar</button>
-  </div>
-)}
-
+        <h2>Peso Corporal</h2>
+        {isEditingWeight ? (
+          <div className="pesoCorporal-editar">
+            <input
+              className="input-peso"
+              type="number"
+              value={bodyWeight}
+              onChange={(e) => setBodyWeight(e.target.value)}
+              placeholder="Introduce tu peso corporal"
+            />
+            <button className="guardar-btn" onClick={handleSaveBodyWeight}>Guardar</button>
+          </div>
+        ) : (
+          <div className='pesoCorporal'>
+            <p>Peso Corporal Actual: {bodyWeight} kg</p>
+            <button className="pesoCorporal-btn" onClick={() => setIsEditingWeight(true)}>Editar</button>
+          </div>
+        )}
       </section>
 
       {/* Historial de peso corporal */}

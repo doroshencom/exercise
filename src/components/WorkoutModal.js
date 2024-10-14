@@ -4,19 +4,25 @@ import pauseIcon from '../assets/btn/pause.svg';
 import resetIcon from '../assets/btn/reset.svg';
 import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
-import './WorkoutModal.css';  // Asegúrate de importar el archivo CSS
+import './WorkoutModal.css';
 
-const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workout }) => {
+const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId, workout }) => {
   const [weights, setWeights] = useState(Array(exercise.series).fill(''));
-  const [bodyWeight, setBodyWeight] = useState(90);  
-  const [maxWeight, setMaxWeight] = useState(0);  
-  const [time, setTime] = useState(0);  
+  const [bodyWeight, setBodyWeight] = useState(90);
+  const [maxWeight, setMaxWeight] = useState(0);
+  const [time, setTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
 
+  // Verificación de userId antes de ejecutar las funciones de Firebase
   useEffect(() => {
+    if (!userId) {
+      console.error("Error: El userId es undefined. Asegúrate de que el usuario esté autenticado.");
+      return;
+    }
+
     const fetchBodyWeight = async () => {
-      const docRef = doc(db, "users", userId);
+      const docRef = doc(db, `users/${userId}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const userData = docSnap.data();
@@ -25,11 +31,11 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
     };
 
     const fetchMaxWeight = async () => {
-      const docRef = doc(db, "pesosMaximos", userId);
+      const docRef = doc(db, `users/${userId}/pesosMaximos/${exercise.name}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const maxWeights = docSnap.data();
-        setMaxWeight(maxWeights[exercise.name] || 0); 
+        setMaxWeight(maxWeights.maxWeight || 0);
       }
     };
 
@@ -38,29 +44,34 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
   }, [userId, exercise.name]);
 
   const handleSaveBodyWeight = async () => {
-    const docRef = doc(db, "users", userId);
+    if (!userId) {
+      console.error("Error: No se puede guardar el peso corporal porque el userId es undefined.");
+      return;
+    }
+
+    const docRef = doc(db, `users/${userId}`);
     await setDoc(docRef, { bodyWeight }, { merge: true });
   };
 
   const updateMaxWeight = async (newMaxWeight) => {
-    const docRef = doc(db, "pesosMaximos", userId);
-    const docSnap = await getDoc(docRef);
-
-    let maxWeights = {};
-    if (docSnap.exists()) {
-      maxWeights = docSnap.data();
+    if (!userId) {
+      console.error("Error: No se puede actualizar el peso máximo porque el userId es undefined.");
+      return;
     }
 
-    if (newMaxWeight > (maxWeights[exercise.name] || 0)) {
-      maxWeights[exercise.name] = newMaxWeight;
-      await setDoc(docRef, maxWeights, { merge: true });
-      setMaxWeight(newMaxWeight);  
-    }
+    const docRef = doc(db, `users/${userId}/pesosMaximos/${exercise.name}`);
+    await setDoc(docRef, { maxWeight: newMaxWeight }, { merge: true });
+    setMaxWeight(newMaxWeight);
   };
 
   const handleComplete = async () => {
-    const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));  
-    const totalWeight = maxSeriesWeight || 0;  // Valor por defecto 0 si no se ingresa peso
+    if (!userId) {
+      console.error("Error: No se puede completar el entrenamiento porque el userId es undefined.");
+      return;
+    }
+
+    const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));
+    const totalWeight = maxSeriesWeight || 0;
 
     await updateMaxWeight(totalWeight);
 
@@ -69,22 +80,22 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
       series: exercise.series,
       repeticiones: exercise.repeticiones,
       peso: totalWeight,
-      timeSpent: time || 0,  // Valor por defecto 0 si no se registra tiempo
-      fecha: new Date().toISOString(),  
+      timeSpent: time || 0,
+      fecha: new Date().toISOString(),
       grupoMuscular: workout
     };
 
     try {
-      const docRef = collection(db, "entrenamientos");
+      const docRef = collection(db, `users/${userId}/entrenamientos`);
       await addDoc(docRef, {
         fecha: new Date().toISOString(),
         grupoMuscular: workout,
         ejercicios: [newTraining],
-        tiempoTotal: time || 0  // Valor por defecto 0 si no se registra tiempo
+        tiempoTotal: time || 0
       });
 
       const today = new Date().toLocaleDateString();
-      const daysRef = doc(db, "diasEntrenados", userId);
+      const daysRef = doc(db, `users/${userId}/diasEntrenados/${today}`);
       const daysSnap = await getDoc(daysRef);
 
       if (daysSnap.exists()) {

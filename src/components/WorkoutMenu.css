@@ -131,3 +131,59 @@ footer {
   color: #28a745;
 }
 
+/* Estilos para el Login */
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro similar al de WorkoutMenu */
+  padding: 20px;
+  color: white;
+}
+
+.login-title {
+  color: white;
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.login-input {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.login-button {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  width: 80%;
+}
+
+.login-button:hover {
+  background-color: #333;
+}
+
+.login-error {
+  color: red;
+  margin-bottom: 15px;
+}
+
+.login-toggle {
+  color: #1e90ff;
+  cursor: pointer;
+}
+
+.login-toggle:hover {
+  text-decoration: underline;
+}

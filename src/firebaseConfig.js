@@ -1,6 +1,8 @@
 
 import { initializeApp } from "firebase/app"; // Inicializar la aplicación
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore"; // Asegurarse de importar Firestore
+
 
 
 const firebaseConfig = {
@@ -13,10 +15,10 @@ const firebaseConfig = {
   measurementId: "G-XDY0YKB2Z9"
 };
 
+
+
+
 // Inicializamos la app de Firebase
 const app = initializeApp(firebaseConfig);
-
-// Inicializamos la base de datos Firestore
-const db = getFirestore(app);
-
-export { db };
+export const auth = getAuth(app); // Para autenticar usuarios
+export const db = getFirestore(app); // Para base de datos (Firestore)

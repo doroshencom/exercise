@@ -59,20 +59,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
 
   const userId = "user_123"; // Reemplaza con el id real del usuario
 
-  useEffect(() => {
-    const loadTrainedDays = async () => {
-      const docRef = doc(db, "diasEntrenados", userId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setTrainedDays(docSnap.data().days || []);
-      } else {
-        await setDoc(docRef, { days: [] });
-        setTrainedDays([]);
-      }
-    };
-    loadTrainedDays();
-  }, [userId]);
-
   const exercises = workoutsByDay[workout] || [];
 
   const getBackgroundImage = (workout) => {

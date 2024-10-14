@@ -3,8 +3,8 @@
     "short_name": "Training",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#2b2b2b00",
-    "theme_color": "adff2f"
+    "background_color": "#0a0b0f",
+    "theme_color": "#0a0b0f"
 
     
   }

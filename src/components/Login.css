@@ -1,0 +1,138 @@
+/* Estilos para el contenedor de login, ajustados para ser consistentes con WorkoutMenu */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro similar a WorkoutMenu */
+    padding: 20px;
+    color: white;
+  }
+  
+  
+  /* Estilos para los campos de input */
+  .login-input {
+    width: 80%;
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: rgba(255, 255, 255, 0.2); /* Fondo transparente con blanco */
+    color: white;
+  }
+  
+  .login-input::placeholder {
+    color: rgba(255, 255, 255, 0.5); /* Placeholder más claro */
+  }
+  
+  .login-input:focus {
+    outline: none;
+    border: 2px solid #ffffff;
+  }
+  
+  /* Botón de login o registro */
+  .login-button {
+    background-color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    max-width: 300px;
+  }
+  
+  .login-button:hover {
+    background-color: #333;
+  }
+  
+  /* Mostrar errores de login */
+  .login-error {
+    color: red;
+    margin-bottom: 15px;
+  }
+  
+  /* Enlace para alternar entre iniciar sesión y registrarse */
+  .login-toggle {
+    color: yellowgreen;
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .login-toggle:hover {
+    text-decoration: underline;
+  }
+  
+  /* Estilo para el logo */
+  .logo-box {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo-box img {
+    max-width: 150px;
+  }
+  
+  /* Estilo para el reloj en tiempo real */
+  .clock {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.288);
+  }
+  
+  /* Contenedor del día y el grupo muscular */
+  .muscle-group {
+    text-align: center;
+  }
+  
+  .group-muscle-btn {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: default;
+    font-size: 1.4em;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* Responsive: Asegura que todo se vea bien en pantallas pequeñas */
+  @media (max-width: 768px) {
+    .login-input,
+    .login-button,
+    .group-muscle-btn {
+      width: 90%;
+    }
+  
+  
+    .clock {
+      font-size: 1.2em;
+    }
+  }
+  
+  /* Responsive para pantallas más grandes */
+  @media (min-width: 1200px) {
+    .login-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+  
+    .login-input,
+    .login-button,
+    .group-muscle-btn {
+      width: 100%;
+    }
+  
+    .login-title {
+      font-size: 1em;
+    }
+  
+    .clock {
+      font-size: 2em;
+    }
+  }
+  

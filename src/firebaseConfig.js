@@ -1,9 +1,7 @@
 
-import { initializeApp } from "firebase/app"; // Inicializar la aplicación
+import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from "firebase/firestore"; // Asegurarse de importar Firestore
-
-
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDClcTWA8IhBiNMtBxJLEazzrAhKHteoms",
@@ -15,10 +13,9 @@ const firebaseConfig = {
   measurementId: "G-XDY0YKB2Z9"
 };
 
-
-
-
 // Inicializamos la app de Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app); // Para autenticar usuarios
-export const db = getFirestore(app); // Para base de datos (Firestore)
+const auth = getAuth(app);  // Asegúrate de inicializar Firebase Auth
+const db = getFirestore(app);
+
+export { auth, db };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WorkoutModal from './WorkoutModal';
-import { collection, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import './WorkoutMenu.css';
 
@@ -11,7 +11,7 @@ import piernasYGluteosBackground from '../assets/background/piernas_y_gluteos.pn
 import hombrosYAbdomenBackground from '../assets/background/hombros_y_abdomen.png';
 import fullBodyBackground from '../assets/background/full_body.png';
 
-const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
+const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId, onLogout }) => {
   const workoutsByDay = {
     'Pecho y Tríceps': [
       { name: 'Flexiones', series: 4, repeticiones: 12, isBodyWeight: true },
@@ -90,7 +90,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
     }
 
     setModalOpen(true);
-};
+  };
 
   const handleCompleteExercise = (exercise, timeSpent) => {
     if (!timeSpent || isNaN(timeSpent)) {
@@ -129,7 +129,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
     } catch (error) {
       console.error("Error al guardar el entrenamiento:", error);
     }
-};
+  };
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
@@ -170,11 +170,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
           ))}
         </div>
 
-        <div className="total-time">
-          <p>Tiempo total</p>
-          <p>{formatTime(totalTime)}</p>
-        </div>
-
         <button className="complete-button" onClick={handleCompleteWorkout}>
           COMPLETAR
         </button>
@@ -191,6 +186,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId }) => {
         )}
         <footer className="footer-logo">
           <p>designed & developed by <a href='https://shenko.es/'>shenko.es</a></p>
+          <button className="logout-btn" onClick={onLogout}>Cerrar Sesión</button> {/* Botón de logout */}
         </footer>
       </div>
     </div>

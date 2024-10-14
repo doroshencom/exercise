@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import './WorkoutModal.css';  // Asegúrate de importar el archivo CSS
 
-const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workout }) => {  // Cambiamos workoutGroup por workout
+const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "user_123", workout }) => {
   const [weights, setWeights] = useState(Array(exercise.series).fill(''));
   const [bodyWeight, setBodyWeight] = useState(90);  
   const [maxWeight, setMaxWeight] = useState(0);  
@@ -60,27 +60,27 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId = "u
 
   const handleComplete = async () => {
     const maxSeriesWeight = Math.max(...weights.map(w => parseFloat(w) || 0));  
-    const totalWeight = maxSeriesWeight;
+    const totalWeight = maxSeriesWeight || 0;  // Valor por defecto 0 si no se ingresa peso
 
-    await updateMaxWeight(maxSeriesWeight);
+    await updateMaxWeight(totalWeight);
 
     const newTraining = {
       nombre: exercise.name,
       series: exercise.series,
       repeticiones: exercise.repeticiones,
       peso: totalWeight,
-      timeSpent: time,
+      timeSpent: time || 0,  // Valor por defecto 0 si no se registra tiempo
       fecha: new Date().toISOString(),  
-      grupoMuscular: workout  // Aseguramos que el valor workout sea el correcto
+      grupoMuscular: workout
     };
 
     try {
       const docRef = collection(db, "entrenamientos");
       await addDoc(docRef, {
         fecha: new Date().toISOString(),
-        grupoMuscular: workout,  // Cambiamos workoutGroup por workout aquí también
+        grupoMuscular: workout,
         ejercicios: [newTraining],
-        tiempoTotal: time
+        tiempoTotal: time || 0  // Valor por defecto 0 si no se registra tiempo
       });
 
       const today = new Date().toLocaleDateString();

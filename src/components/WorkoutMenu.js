@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WorkoutModal from './WorkoutModal';
-import { collection, doc, getDoc, setDoc, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import './WorkoutMenu.css';
 
@@ -109,26 +109,33 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   };
 
   const handleCompleteExercise = (exercise, timeSpent) => {
+    console.log("Tiempo pasado:", timeSpent); // Verificar el valor de timeSpent
     if (!timeSpent || isNaN(timeSpent)) {
       console.error("Tiempo inválido pasado a la función handleCompleteExercise.");
       return;
     }
-  
+
     setTotalTime((prevTime) => prevTime + timeSpent); // Acumula el tiempo
     setCompletedExercises([...completedExercises, { ...exercise, timeSpent }]);
     setModalOpen(false);
   };
 
+  useEffect(() => {
+    const total = completedExercises.reduce((acc, exercise) => acc + (exercise.timeSpent || 0), 0);
+    setTotalTime(total);
+  }, [completedExercises]);
+
   const handleCompleteWorkout = async () => {
     try {
-      if (!workout || completedExercises.length === 0) {
-        console.error("Datos incompletos: grupo muscular o ejercicios faltantes.");
+      if (!workout) {
+        console.error("Datos incompletos: grupo muscular faltante.");
         return;
       }
-  
+
+      // Guardar el entrenamiento, incluso si no se han completado ejercicios
       await addDoc(collection(db, "entrenamientos"), {
         fecha: new Date().toISOString(),
-        grupoMuscular: workout, 
+        grupoMuscular: workout,
         ejercicios: completedExercises.map(e => ({
           nombre: e.name,
           peso: e.peso || 0, // Valor predeterminado si falta peso
@@ -138,15 +145,13 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
         })),
         tiempoTotal: totalTime || 0 // Asegurarse de que el tiempo total no sea undefined
       });
-  
+
       console.log("Entrenamiento guardado con éxito.");
       onCompleteWorkout();
     } catch (error) {
       console.error("Error al guardar el entrenamiento:", error);
     }
   };
-  
-  
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
@@ -186,10 +191,7 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             </button>
           ))}
         </div>
-        <div className="total-time">
-          <p>Tiempo total</p>
-          <p>{formatTime(totalTime)}</p>
-        </div>
+
         <button className="complete-button" onClick={handleCompleteWorkout}>
           COMPLETAR
         </button>
@@ -203,8 +205,8 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
             workout={workout}
           />
         )}
-        <footer>
-          <p>designed & developed by shenko.es</p>
+        <footer className="footer-logo">
+          <p>designed & developed by <a href='https://shenko.es/'>shenko.es</a></p>
         </footer>
       </div>
     </div>

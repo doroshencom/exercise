@@ -14,16 +14,17 @@ const Login = ({ setUser }) => {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true); // Alterna entre Login y Registro
   const [error, setError] = useState('');
+  const [backgroundIndex, setBackgroundIndex] = useState(0);
   const [time, setTime] = useState(new Date());
 
-  // Mapeo de los días de la semana a los grupos musculares
-  const workouts = {
-    lunes: 'Pecho y Tríceps',
-    martes: 'Espalda y Bíceps',
-    miércoles: 'Piernas y Glúteos',
-    jueves: 'Hombros y Abdomen',
-    viernes: 'Full Body',
-  };
+  // Fondos en orden para iterar
+  const backgrounds = [
+    pechoYTricepsBackground,
+    espaldaYBicepsBackground,
+    piernasYGluteosBackground,
+    hombrosYAbdomenBackground,
+    fullBodyBackground,
+  ];
 
   // Manejar registro
   const handleSignup = async () => {
@@ -51,37 +52,25 @@ const Login = ({ setUser }) => {
     return () => clearInterval(timer); // Limpiar intervalo cuando se desmonte el componente
   }, []);
 
-  // Obtener el día actual y el entrenamiento correspondiente
-  const day = new Date().toLocaleDateString('es-ES', { weekday: 'long' });
-  const todayWorkout = workouts[day.toLowerCase()];
+  // Cambiar fondo de manera automática cada vez que se alterna entre login/registro
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length);
+    }, 5000); // Cambiar cada 5 segundos
 
-  // Obtener el background según el grupo muscular
-  const getBackgroundImage = (workout) => {
-    switch (workout) {
-      case 'Pecho y Tríceps':
-        return pechoYTricepsBackground;
-      case 'Espalda y Bíceps':
-        return espaldaYBicepsBackground;
-      case 'Piernas y Glúteos':
-        return piernasYGluteosBackground;
-      case 'Hombros y Abdomen':
-        return hombrosYAbdomenBackground;
-      case 'Full Body':
-        return fullBodyBackground;
-      default:
-        return null;
-    }
-  };
+    return () => clearInterval(interval); // Limpiar el intervalo al desmontar el componente
+  }, []);
 
   return (
     <div
       className="login-container"
       style={{
-        backgroundImage: `url(${getBackgroundImage(todayWorkout)})`,
+        backgroundImage: `url(${backgrounds[backgroundIndex]})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '100vh',
         width: '100%',
+        transition: 'background-image 1s ease-in-out', // Transición suave entre fondos
       }}
     >
       {/* Logo de la app */}
@@ -109,7 +98,13 @@ const Login = ({ setUser }) => {
         {isLogin ? 'Entrar' : 'Registro'}
       </button>
       {error && <p className="login-error">{error}</p>}
-      <p className="login-toggle" onClick={() => setIsLogin(!isLogin)}>
+      <p
+        className="login-toggle"
+        onClick={() => {
+          setIsLogin(!isLogin);
+          setBackgroundIndex((prevIndex) => (prevIndex + 1) % backgrounds.length); // Cambiar el fondo al alternar
+        }}
+      >
         {isLogin ? '¿No tienes una cuenta? Regístrate' : '¿Ya tienes una cuenta? Inicia sesión'}
       </p>
     </div>

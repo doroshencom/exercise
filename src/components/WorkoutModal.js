@@ -173,7 +173,7 @@ const WorkoutModal = ({ exercise, onClose, onComplete, isBodyWeight, userId, wor
             <div className="pill-container">
               <span className="pill">{exercise.series} series</span>
               <span className="pill">{exercise.repeticiones} reps</span>
-              <span className="pill">Peso Máximo: {maxWeight} kg</span>
+              <span className="pill">PR: {maxWeight} kg</span>
             </div>
           </div>
           <div className="weights-input">

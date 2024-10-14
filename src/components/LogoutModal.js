@@ -7,7 +7,7 @@ const LogoutModal = ({ onConfirm, onClose }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <h3>¿Estás seguro de que quieres cerrar sesión?</h3>
-        <div className="modal-footer">
+        <div className="modal-logout">
           <button className="modal-btn" onClick={onConfirm}>Sí</button>
           <button className="modal-btn" onClick={onClose}>No</button>
         </div>

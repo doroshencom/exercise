@@ -89,14 +89,8 @@ const Login = ({ setUser }) => {
         <img src={appLogo} alt="Shenko logo" />
       </div>
 
-      {/* Día actual y entrenamiento que toca */}
-      <div className="muscle-group">
-        <p className="paragraph">Hoy es <strong>{day}</strong>, toca</p>
-        <button className="group-muscle-btn">{todayWorkout}</button>
-      </div>
-
       {/* Formulario de login/registro */}
-      <h2 className="login-title">{isLogin ? 'Iniciar Sesión' : 'Registrarse'}</h2>
+      <h2 className="login-title">{isLogin ? 'Login' : 'Registro'}</h2>
       <input
         className="login-input"
         type="email"
@@ -112,7 +106,7 @@ const Login = ({ setUser }) => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button className="login-button" onClick={isLogin ? handleLogin : handleSignup}>
-        {isLogin ? 'Iniciar Sesión' : 'Registrarse'}
+        {isLogin ? 'Entrar' : 'Registrarme'}
       </button>
       {error && <p className="login-error">{error}</p>}
       <p className="login-toggle" onClick={() => setIsLogin(!isLogin)}>

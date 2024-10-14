@@ -1,4 +1,12 @@
 /* Estilos para el contenedor de login, ajustados para ser consistentes con WorkoutMenu */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    background: rgba(43, 41, 41, 0.486) !important;
+    background-color: rgba(43, 41, 41, 0.486) !important;
+}
+
 .login-container {
     display: flex;
     flex-direction: column;
@@ -6,21 +14,19 @@
     align-items: center;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro similar a WorkoutMenu */
-    padding: 20px;
     color: white;
   }
   
   
   /* Estilos para los campos de input */
   .login-input {
-    width: 80%;
     max-width: 300px;
     padding: 10px;
     margin-bottom: 15px;
     border: none;
-    border-radius: 5px;
+    border-radius: 15px;
     font-size: 16px;
-    background-color: rgba(255, 255, 255, 0.2); /* Fondo transparente con blanco */
+    background-color: rgba(43, 41, 41, 0.2); /* Fondo transparente con blanco */
     color: white;
   }
   
@@ -30,18 +36,29 @@
   
   .login-input:focus {
     outline: none;
-    border: 2px solid #ffffff;
+    border: 2px solid yellowgreen;
+    background-color: rgba(43, 41, 41, 0.2); /* Fondo transparente con blanco */
+  }
+
+  .login-button::interal-autofill-selected {
+    background-color: rgba(43, 41, 41, 0.2); /* Fondo transparente con blanco */
+
   }
   
   /* Botón de login o registro */
   .login-button {
-    background-color: #000;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 15px;
     max-width: 300px;
+    background-color: #00000094;
+    border: solid 1px #838383a9;
+    color: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 300;
+    letter-spacing: 15px;
+    text-transform: uppercase;
+    border-radius: 50px;
+    margin-top: 30px;
   }
   
   .login-button:hover {
@@ -87,6 +104,7 @@
   /* Contenedor del día y el grupo muscular */
   .muscle-group {
     text-align: center;
+    width: 100%;
   }
   
   .group-muscle-btn {

@@ -145,12 +145,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack, userId, onLogout })
   return (
     <div
       className="workout-menu"
-      style={{
-        backgroundImage: `url(${getBackgroundImage(workout)})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
     >
       <div className="content-overlay">
         <div className="header">

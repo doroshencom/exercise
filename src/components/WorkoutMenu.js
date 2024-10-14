@@ -55,7 +55,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [completedExercises, setCompletedExercises] = useState([]);
   const [totalTime, setTotalTime] = useState(0);
-  const [trainedDays, setTrainedDays] = useState([]);
   const [maxWeight, setMaxWeight] = useState(null);
 
   const userId = "user_123"; // Reemplaza con el id real del usuario
@@ -155,13 +154,6 @@ const WorkoutMenu = ({ workout, onCompleteWorkout, onGoBack }) => {
 
   const isExerciseCompleted = (exercise) => {
     return completedExercises.some(e => e.name === exercise.name);
-  };
-
-  const formatTime = (time) => {
-    if (!time || isNaN(time)) return "0 horas 0 minutos"; // Validación adicional
-    const minutes = Math.floor(time / 60000);
-    const seconds = Math.floor((time % 60000) / 1000);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   return (

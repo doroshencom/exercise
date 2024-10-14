@@ -52,7 +52,7 @@ function App() {
         setBackgroundImage(null);  // Fondo vacío para los días de descanso
         break;
     }
-  }, []);  // Este useEffect se ejecuta solo al cargar la app
+  }, [workouts]);  // Este useEffect se ejecuta solo al cargar la app
 
   const handleStartWorkout = (workout) => {
     setSelectedWorkout(workout);

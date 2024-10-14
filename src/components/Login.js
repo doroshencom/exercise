@@ -90,7 +90,7 @@ const Login = ({ setUser }) => {
       </div>
 
       {/* Formulario de login/registro */}
-      <h2 className="login-title">{isLogin ? 'Login' : 'Registro'}</h2>
+      <h2 className="login-title">{isLogin ? 'Login' : 'Nueva cuenta'}</h2>
       <input
         className="login-input"
         type="email"
@@ -106,7 +106,7 @@ const Login = ({ setUser }) => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button className="login-button" onClick={isLogin ? handleLogin : handleSignup}>
-        {isLogin ? 'Entrar' : 'Registrarme'}
+        {isLogin ? 'Entrar' : 'Registro'}
       </button>
       {error && <p className="login-error">{error}</p>}
       <p className="login-toggle" onClick={() => setIsLogin(!isLogin)}>
